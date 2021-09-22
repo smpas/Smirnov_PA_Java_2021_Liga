@@ -16,14 +16,15 @@ public class MailNotification implements Notification {
 
     @Override
     public String getText() {
-        return getHeader() + template.getTemplate();
+        return String.format("%s\n%s\n%s\n",
+                user.getEmail(),
+                user.getName(),
+                getTemplate().getText()
+        );
     }
 
     @Override
-    public String getHeader() {
-        return String.format("%s\n%s, ",
-                user.getEmail(),
-                user.getName()
-        );
+    public NotificationTemplate getTemplate() {
+        return template;
     }
 }

@@ -14,11 +14,9 @@ public class Main {
 
         NotificationFactory factory = true ? new MailNotificationFactory() : new PhoneNotificationFactory();
 
-        NotificationTemplate template = NotificationTemplate.FEEDBACK;
-
-        Notification notification = factory.makeNotification(template, user);
+        Notification notification = factory.makeNotification(NotificationTemplate.FEEDBACK, user);
         if (user.getLanguage() != Language.RUSSIAN) {
-            notification = new TranslationNotification(notification, user.getLanguage(), template);
+            notification = new TranslationNotification(notification, user.getLanguage());
         }
         sendNotification(notification);
 

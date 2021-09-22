@@ -11,5 +11,12 @@ public abstract class NotificationDecorator implements Notification {
     }
 
     @Override
-    public abstract String getText();
+    public String getText() {
+        return notification.getText();
+    }
+
+    @Override
+    public NotificationTemplate getTemplate() {
+        return notification.getTemplate();
+    }
 }

@@ -7,21 +7,18 @@ import ru.digitalleague.factory.ok.notification.Notification;
 public class TranslationNotification extends NotificationDecorator {
     private Resource resource = new Resource();
     private Language language;
-    private NotificationTemplate template;
 
-    public TranslationNotification(Notification notification, Language language, NotificationTemplate template) {
+    public TranslationNotification(Notification notification, Language language) {
         super(notification);
         this.language = language;
-        this.template = template;
     }
 
     @Override
     public String getText() {
-        return notification.getHeader() + resource.getTranslation(template, language);
+        return super.getText() + getTranslation();
     }
 
-    @Override
-    public String getHeader() {
-        return notification.getHeader();
+    public String getTranslation() {
+        return resource.getTranslation(getTemplate(), language);
     }
 }

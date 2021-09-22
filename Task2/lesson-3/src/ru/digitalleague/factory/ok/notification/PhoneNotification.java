@@ -1,6 +1,5 @@
 package ru.digitalleague.factory.ok.notification;
 
-
 import ru.digitalleague.factory.ok.User;
 import ru.digitalleague.factory.ok.notification.decorator.NotificationTemplate;
 
@@ -14,15 +13,17 @@ public class PhoneNotification implements Notification {
         this.user = user;
     }
 
+    @Override
     public String getText() {
-        return getHeader() + template.getTemplate();
+        return String.format("%s\n%s\n%s\n",
+                user.getPhone(),
+                user.getName(),
+                getTemplate()
+        );
     }
 
     @Override
-    public String getHeader() {
-        return String.format("%s\n%s, ",
-                user.getPhone(),
-                user.getName()
-        );
+    public NotificationTemplate getTemplate() {
+        return template;
     }
 }
