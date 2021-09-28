@@ -16,29 +16,6 @@ public class User {
         orders = new LinkedList<Order>();
     }
 
-    public void addProduct(Product product) {
-        basket.addProduct(product);
-    }
-
-    public void removeProduct(Product product) {
-        basket.removeProduct(product);
-    }
-
-    public void submitOrder() {
-        if (basket.isEmpty()) {
-            System.out.println("Корзина пуста!");
-            return;
-        }
-
-        Order newOrder = new Order(orders.size(), basket, discount);
-        orders.add(newOrder);
-        basket = new Basket();
-    }
-
-    public void clearBasket() {
-        basket.clearBasket();
-    }
-
     public Integer getId() {
         return id;
     }

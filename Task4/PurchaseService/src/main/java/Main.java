@@ -1,30 +1,29 @@
 import entity.Order;
 import entity.Product;
 import entity.User;
+import service.UserService;
 
 import java.math.BigDecimal;
 
 public class Main {
+    public static UserService userService;
+
     public static void main(String[] args) {
         Product cat = new Product("cat", new BigDecimal(100));
         Product dog = new Product("dog", new BigDecimal(200));
+        userService = new UserService(new User(12, 5));
 
-        User user = new User(12, 5);
-        user.addProduct(cat);
-        user.addProduct(cat);
-        user.addProduct(dog);
-        user.submitOrder();
+        userService.addProduct(cat);
+        userService.addProduct(cat);
+        userService.addProduct(dog);
+        userService.submitOrder();
 
-        user.addProduct(dog);
-        user.addProduct(dog);
-        user.removeProduct(dog);
-        user.submitOrder();
+        userService.addProduct(dog);
+        userService.addProduct(dog);
+        userService.removeProduct(dog);
+        userService.submitOrder();
 
-        user.addProduct(cat);
-        user.submitOrder();
-
-        for (Order order : user.getOrders()) {
-            System.out.println(order);
-        }
+        userService.addProduct(cat);
+        userService.submitOrder();
     }
 }
