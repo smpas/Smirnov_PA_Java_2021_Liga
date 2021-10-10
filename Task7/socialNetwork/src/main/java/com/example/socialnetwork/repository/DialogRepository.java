@@ -1,7 +1,11 @@
 package com.example.socialnetwork.repository;
 
+import com.example.socialnetwork.entity.Client;
 import com.example.socialnetwork.entity.Dialog;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface DialogRepository extends JpaRepository<Dialog, Long> {
+import java.util.List;
+
+public interface DialogRepository extends CrudRepository<Dialog, Long> {
+    List<Dialog> findDialogsByClientsContains(Client client);
 }

@@ -1,5 +1,6 @@
 package com.example.socialnetwork.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +28,7 @@ public class Dialog {
     )
     private List<Client> clients;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "dialog")
     private List<Message> messages;
 

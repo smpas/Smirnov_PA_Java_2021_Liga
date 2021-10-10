@@ -1,6 +1,8 @@
 package com.example.socialnetwork.entity;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -14,34 +16,34 @@ public class Friend {
     @Id
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "first_client_id")
-    private Client first_client;
+    private Client firstClient;
 
     @Id
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "second_client_id")
-    private Client second_client;
+    private Client secondClient;
 
     @EqualsAndHashCode
     @Getter
     @Setter
     public static class FriendKey implements Serializable {
-        public Long first_client;
-        public Long second_client;
+        public Long firstClient;
+        public Long secondClient;
 
         public FriendKey() {
         }
 
-        public FriendKey(Long first_client, Long second_client) {
-            this.first_client = first_client;
-            this.second_client = second_client;
+        public FriendKey(Long firstClient, Long secondClient) {
+            this.firstClient = firstClient;
+            this.secondClient = secondClient;
         }
     }
 
     public Friend() {
     }
 
-    public Friend(Client first_client, Client second_client) {
-        this.first_client = first_client;
-        this.second_client = second_client;
+    public Friend(Client firstClient, Client secondClient) {
+        this.firstClient = firstClient;
+        this.secondClient = secondClient;
     }
 }

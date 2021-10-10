@@ -1,7 +1,12 @@
 package com.example.socialnetwork.repository;
 
+import com.example.socialnetwork.entity.Client;
 import com.example.socialnetwork.entity.Friend;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface FriendRepository extends JpaRepository<Friend, Long> {
+import javax.transaction.Transactional;
+import java.util.List;
+
+public interface FriendRepository extends CrudRepository<Friend, Long> {
+    List<Friend> findFriendsByFirstClient(Client client);
 }

@@ -1,5 +1,6 @@
 package com.example.socialnetwork.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,12 +33,15 @@ public class Client {
     @JoinColumn(name = "school_id")
     private School school;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "client")
     private List<Post> posts;
 
-    @OneToMany(mappedBy = "first_client")
+    @JsonIgnore
+    @OneToMany(mappedBy = "firstClient")
     private List<Friend> friends;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "client_dialog",

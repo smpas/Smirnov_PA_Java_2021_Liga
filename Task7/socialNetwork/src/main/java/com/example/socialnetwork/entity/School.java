@@ -1,5 +1,6 @@
 package com.example.socialnetwork.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +23,7 @@ public class School {
     @Column(name="address", length = 50)
     private String address;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "school")
     private List<Client> clients;
 

@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.print.attribute.standard.MediaSize;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
@@ -35,9 +32,8 @@ public class Post {
     public Post() {
     }
 
-    public Post(Client client, Timestamp date, String text) {
-        this.client = client;
-        this.date = date;
+    public Post(String header, String text) {
+        this.header = header;
         this.text = text;
     }
 }
