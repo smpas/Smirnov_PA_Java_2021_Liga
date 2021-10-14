@@ -44,7 +44,6 @@ public class SocialNetworkApplication {
             Friend friendship1 = new Friend(client2, client1);
             friendRepository.save(friendship);
             friendRepository.save(friendship1);
-//            friendRepository.deleteFriendByFirstClient(client1);
 
             Dialog dialog = new Dialog("pasha and lesha");
             dialog.setClients(List.of(client1, client2));
