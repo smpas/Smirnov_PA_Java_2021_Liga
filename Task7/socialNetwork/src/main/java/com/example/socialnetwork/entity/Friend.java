@@ -14,12 +14,12 @@ import java.io.Serializable;
 public class Friend {
 
     @Id
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "first_client_id")
     private Client firstClient;
 
     @Id
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "second_client_id")
     private Client secondClient;
 

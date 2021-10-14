@@ -7,5 +7,7 @@ import java.util.List;
 public interface FriendService {
     List<Client> getUserFriends(Long userId);
 
+    Client deleteFriend(Long firstClientId, Long secondClientId);
+
     Client addFriend(Long firstClient, Long secondClient);
 }

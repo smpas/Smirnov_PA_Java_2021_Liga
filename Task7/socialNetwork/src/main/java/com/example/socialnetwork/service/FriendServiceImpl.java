@@ -7,6 +7,7 @@ import com.example.socialnetwork.repository.FriendRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,21 @@ public class FriendServiceImpl implements FriendService {
                 clients.add(friend.getSecondClient());
             }
             return clients;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    @Transactional
+    public Client deleteFriend(Long firstClientId, Long secondClientId) {
+        Optional<Client> firstClient = clientRepository.findById(firstClientId);
+        Optional<Client> secondClient = clientRepository.findById(secondClientId);
+
+        if (firstClient.isPresent() && secondClient.isPresent()) {
+            friendRepository.deleteFriendByFirstClientAndSecondClient(firstClient.get(), secondClient.get());
+            friendRepository.deleteFriendByFirstClientAndSecondClient(secondClient.get(), firstClient.get());
+            return secondClient.get();
         } else {
             return null;
         }

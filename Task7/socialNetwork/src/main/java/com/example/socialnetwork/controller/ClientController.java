@@ -82,7 +82,7 @@ public class ClientController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteClient(@PathVariable Long id) {
         Client deletedClient = clientService.deleteClient(id);
 

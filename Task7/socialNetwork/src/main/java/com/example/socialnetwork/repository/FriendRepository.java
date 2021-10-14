@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface FriendRepository extends CrudRepository<Friend, Long> {
     List<Friend> findFriendsByFirstClient(Client client);
+    void deleteFriendByFirstClientAndSecondClient(Client firstClient, Client secondClient);
 }
