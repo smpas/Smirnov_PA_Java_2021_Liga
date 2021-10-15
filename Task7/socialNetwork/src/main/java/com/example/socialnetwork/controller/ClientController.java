@@ -1,6 +1,7 @@
 package com.example.socialnetwork.controller;
 
-import com.example.socialnetwork.entity.Client;
+import com.example.socialnetwork.dto.ClientProfileDTO;
+import com.example.socialnetwork.dto.ShortClientDTO;
 import com.example.socialnetwork.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,86 +11,54 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController()
+@RequestMapping("/users")
 public class ClientController {
+    private final ClientService clientService;
+
     @Autowired
-    private ClientService clientService;
-
-    @GetMapping("/users")
-    public ResponseEntity<List<Client>> getAllClients() {
-        List<Client> allClients = clientService.getAllClients();
-        return new ResponseEntity<>(allClients, HttpStatus.OK);
+    public ClientController(ClientService clientService) {
+        this.clientService = clientService;
     }
 
-    @GetMapping("/users/{id}")
-    public ResponseEntity<Client> getClientById(@PathVariable Long id) {
-        Client client = clientService.getClientById(id);
-
-        if (client != null) {
-            return new ResponseEntity<>(client, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @GetMapping()
+    public ResponseEntity<List<ShortClientDTO>> getAllClients() {
+        return new ResponseEntity<>(clientService.getAllClients(), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/users", params = {"name", "surname"})
-    public ResponseEntity<List<Client>> getClientsByNameAndSurname(@RequestParam String name,
-                                                                   @RequestParam String surname) {
-        List<Client> clients = clientService.getClientsByNameAndSurname(name, surname);
-
-        if (clients != null) {
-            return new ResponseEntity<>(clients, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
+    @GetMapping("/{id}")
+    public ResponseEntity<ClientProfileDTO> getClientById(@PathVariable Long id) {
+        return new ResponseEntity<>(clientService.getClientById(id), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/users", params = "nickname")
-    public ResponseEntity<Client> getClientByNickname(@RequestParam String nickname) {
-        Client client = clientService.getClientByNickname(nickname);
-
-        if (client != null) {
-            return new ResponseEntity<>(client, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
+    @GetMapping(params = {"name", "surname"})
+    public ResponseEntity<List<ShortClientDTO>> getClientsByNameAndSurname(@RequestParam String name,
+                                                                           @RequestParam String surname) {
+        return new ResponseEntity<>(clientService.getClientsByNameAndSurname(name, surname), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/users", params = "schoolId")
-    public ResponseEntity<List<Client>> getClientsBySchoolId(@RequestParam Long schoolId) {
-        List<Client> clients = clientService.getAllClientsBySchoolId(schoolId);
-
-        if (clients != null) {
-            return new ResponseEntity<>(clients, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
+    @GetMapping(params = "nickname")
+    public ResponseEntity<ClientProfileDTO> getClientByNickname(@RequestParam String nickname) {
+        return new ResponseEntity<>(clientService.getClientByNickname(nickname), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/users")
-    public ResponseEntity<Client> addNewClient(@RequestBody Client client) {
-        Client addedClient = clientService.addNewClient(client);
-        return new ResponseEntity<>(addedClient, HttpStatus.OK);
+    @GetMapping(params = "school_id")
+    public ResponseEntity<List<ShortClientDTO>> getClientsBySchoolId(@RequestParam Long school_id) {
+        return new ResponseEntity<>(clientService.getAllClientsBySchoolId(school_id), HttpStatus.OK);
     }
 
-    @PutMapping(value = "/users")
-    public ResponseEntity<Client> updateClient(@RequestBody Client client) {
-        Client changedClient = clientService.updateClient(client);
-
-        if (changedClient != null) {
-            return new ResponseEntity<>(changedClient, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @PostMapping()
+    public ResponseEntity<ShortClientDTO> addNewClient(@RequestBody ShortClientDTO client) {
+        return new ResponseEntity<>(clientService.addNewClient(client), HttpStatus.OK);
     }
 
-    @DeleteMapping("/users/{id}")
+    @PutMapping()
+    public ResponseEntity<ShortClientDTO> updateClient(@RequestBody ShortClientDTO client) {
+        return new ResponseEntity<>(clientService.updateClient(client), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteClient(@PathVariable Long id) {
-        Client deletedClient = clientService.deleteClient(id);
-
-        if (deletedClient != null) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        clientService.deleteClient(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

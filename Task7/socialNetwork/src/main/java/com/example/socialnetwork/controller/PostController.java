@@ -1,6 +1,6 @@
 package com.example.socialnetwork.controller;
 
-import com.example.socialnetwork.entity.Post;
+import com.example.socialnetwork.dto.PostDTO;
 import com.example.socialnetwork.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,51 +10,33 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/users")
 public class PostController {
+    private final PostService postService;
+
     @Autowired
-    private PostService postService;
-
-    @GetMapping(value = "/posts", params = "userId")
-    public ResponseEntity<List<Post>> getAllPostsOfClient(@RequestParam Long userId) {
-        List<Post> posts = postService.getPostsByClientId(userId);
-
-        if (posts != null) {
-            return new ResponseEntity<>(posts, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public PostController(PostService postService) {
+        this.postService = postService;
     }
 
-    @PostMapping(value = "/posts", params = "userId")
-    public ResponseEntity<Post> writeNewPost(@RequestParam Long userId, @RequestBody Post post) {
-        Post addedPost = postService.writeNewPost(userId, post);
-
-        if (addedPost != null) {
-            return new ResponseEntity<>(addedPost, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @GetMapping("/{user_id}/posts")
+    public ResponseEntity<List<PostDTO>> getAllPostsOfClient(@PathVariable Long user_id) {
+        return new ResponseEntity<>(postService.getPostsByClientId(user_id), HttpStatus.OK);
     }
 
-    @PutMapping(value = "/posts", params = "userId")
-    public ResponseEntity<Post> editPost(@RequestParam Long userId, @RequestBody Post post) {
-        Post editedPost = postService.editPost(userId, post);
-
-        if (editedPost != null) {
-            return new ResponseEntity<>(editedPost, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @PostMapping(value = "/posts")
+    public ResponseEntity<PostDTO> writeNewPost(@RequestBody PostDTO post) {
+        return new ResponseEntity<>(postService.writeNewPost(post), HttpStatus.OK);
     }
 
-    @DeleteMapping("/posts/{id}")
-    public ResponseEntity<?> deletePost(@PathVariable Long id) {
-        Post deletedPost = postService.deletePost(id);
+    @PutMapping(value = "/posts")
+    public ResponseEntity<PostDTO> editPost(@RequestBody PostDTO post) {
+        return new ResponseEntity<>(postService.editPost(post), HttpStatus.OK);
+    }
 
-        if (deletedPost != null) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @DeleteMapping("/posts/{post_id}")
+    public ResponseEntity<?> deletePost(@PathVariable Long post_id) {
+        postService.deletePost(post_id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

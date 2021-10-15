@@ -1,15 +1,16 @@
 package com.example.socialnetwork.service;
 
+import com.example.socialnetwork.dto.PostDTO;
 import com.example.socialnetwork.entity.Post;
 
 import java.util.List;
 
 public interface PostService {
-    List<Post> getPostsByClientId(Long clientId);
+    List<PostDTO> getPostsByClientId(Long clientId);
 
-    Post writeNewPost(Long clientId, Post post);
+    PostDTO writeNewPost(PostDTO post);
 
-    Post editPost(Long clientId, Post post);
+    PostDTO editPost(PostDTO post);
 
-    Post deletePost(Long postId);
+    void deletePost(Long postId);
 }

@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Entity
+@Table(name = "post")
 public class Post {
 
     @Id
@@ -16,7 +17,7 @@ public class Post {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne()
     @JoinColumn(name = "client_id")
     private Client client;
 

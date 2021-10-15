@@ -10,6 +10,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Entity
+@Table(name = "friend")
 @IdClass(Friend.FriendKey.class)
 public class Friend {
 

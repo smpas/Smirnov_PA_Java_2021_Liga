@@ -1,17 +1,17 @@
 package com.example.socialnetwork.service;
 
-import com.example.socialnetwork.entity.School;
+import com.example.socialnetwork.dto.SchoolDTO;
 
 import java.util.List;
 
 public interface SchoolService {
-    List<School> getAllSchools();
+    List<SchoolDTO> getAllSchools();
 
-    School getSchoolById(Long id);
+    SchoolDTO getSchoolById(Long id);
 
-    School addNewSchool(School school);
+    SchoolDTO addNewSchool(SchoolDTO school);
 
-    School updateSchool(School school);
+    SchoolDTO updateSchool(SchoolDTO school);
 
-    School deleteSchool(Long id);
+    void deleteSchool(Long id);
 }

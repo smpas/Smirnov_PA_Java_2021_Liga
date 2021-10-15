@@ -1,6 +1,6 @@
 package com.example.socialnetwork.controller;
 
-import com.example.socialnetwork.entity.Dialog;
+import com.example.socialnetwork.dto.DialogDTO;
 import com.example.socialnetwork.service.DialogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,51 +10,33 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/dialogs")
 public class DialogController {
+    private final DialogService dialogService;
+
     @Autowired
-    private DialogService dialogService;
-
-    @GetMapping(value = "/dialogs", params = "userId")
-    public ResponseEntity<List<Dialog>> getDialogsByClientId(@RequestParam Long userId) {
-        List<Dialog> dialogs = dialogService.getDialogsByClientId(userId);
-
-        if (dialogs != null) {
-            return new ResponseEntity<>(dialogs, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public DialogController(DialogService dialogService) {
+        this.dialogService = dialogService;
     }
 
-    @PostMapping(value = "/dialogs", params = "usersId")
-    public ResponseEntity<Dialog> createDialog(@RequestParam String name, @RequestParam Long[] usersId) {
-        Dialog createdDialog = dialogService.createDialog(name, usersId);
-
-        if (createdDialog != null) {
-            return new ResponseEntity<>(createdDialog, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @GetMapping(value = "/list/{user_id}")
+    public ResponseEntity<List<DialogDTO>> getDialogsByClientId(@PathVariable Long user_id) {
+        return new ResponseEntity<>(dialogService.getDialogsByClientId(user_id), HttpStatus.OK);
     }
 
-    @DeleteMapping("/dialogs/{id}")
+    @PostMapping()
+    public ResponseEntity<DialogDTO> createDialog(@RequestBody DialogDTO dialog) {
+        return new ResponseEntity<>(dialogService.createDialog(dialog), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteDialog(@PathVariable Long id) {
-        Dialog deletedDialog = dialogService.deleteDialog(id);
-
-        if (deletedDialog != null) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        dialogService.deleteDialog(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping(value = "/dialogs/addUser", params = {"dialogId", "userId"})
-    public ResponseEntity<Dialog> addUserToDialog(@RequestParam Long dialogId, @RequestParam Long userId) {
-        Dialog dialog = dialogService.addUserToDialog(dialogId, userId);
-
-        if (dialog != null) {
-            return new ResponseEntity<>(dialog, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @PutMapping(value = "/{dialog_id}/new-user/{user_id}")
+    public ResponseEntity<DialogDTO> addUserToDialog(@PathVariable Long dialog_id, @PathVariable Long user_id) {
+        return new ResponseEntity<>(dialogService.addUserToDialog(dialog_id, user_id), HttpStatus.OK);
     }
 }

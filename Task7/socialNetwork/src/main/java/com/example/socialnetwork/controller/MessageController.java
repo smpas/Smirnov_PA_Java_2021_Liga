@@ -1,6 +1,6 @@
 package com.example.socialnetwork.controller;
 
-import com.example.socialnetwork.entity.Message;
+import com.example.socialnetwork.dto.MessageDTO;
 import com.example.socialnetwork.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,53 +10,33 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/dialogs")
 public class MessageController {
+    private final MessageService messageService;
+
     @Autowired
-    private MessageService messageService;
-
-    @GetMapping(value = "/messages", params = "dialogId")
-    public ResponseEntity<List<Message>> getMessagesByDialog(@RequestParam Long dialogId) {
-        List<Message> messages = messageService.getMessagesByDialog(dialogId);
-
-        if (messages != null) {
-            return new ResponseEntity<>(messages, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public MessageController(MessageService messageService) {
+        this.messageService = messageService;
     }
 
-    @PostMapping(value = "/messages", params = {"dialogId", "userId"})
-    public ResponseEntity<Message> sendMessage(@RequestParam Long dialogId,
-                                               @RequestParam Long userId,
-                                               @RequestBody Message message) {
-        Message sentMessage = messageService.sendMessage(dialogId, userId, message);
-
-        if (sentMessage != null) {
-            return new ResponseEntity<>(sentMessage, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @GetMapping("/{dialog_id}/messages")
+    public ResponseEntity<List<MessageDTO>> getMessagesByDialog(@PathVariable Long dialog_id) {
+        return new ResponseEntity<>(messageService.getMessagesByDialog(dialog_id), HttpStatus.OK);
     }
 
-    @PutMapping(value = "/messages")
-    public ResponseEntity<Message> editMessage(@RequestBody Message message) {
-        Message editedMessage = messageService.editMessage(message);
+    @PostMapping(value = "/{dialog_id}/messages")
+    public ResponseEntity<MessageDTO> sendMessage(@PathVariable Long dialog_id, @RequestBody MessageDTO message) {
+        return new ResponseEntity<>(messageService.sendMessage(dialog_id, message), HttpStatus.OK);
+    }
 
-        if (editedMessage != null) {
-            return new ResponseEntity<>(editedMessage, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @PutMapping(value = "{dialog_id}/messages")
+    public ResponseEntity<MessageDTO> editMessage(@PathVariable Long dialog_id, @RequestBody MessageDTO message) {
+        return new ResponseEntity<>(messageService.editMessage(dialog_id, message), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "messages/{id}")
     public ResponseEntity<?> deleteMessage(@PathVariable Long id) {
-        Message message = messageService.deleteMessage(id);
-
-        if (message != null) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        messageService.deleteMessage(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

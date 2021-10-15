@@ -1,6 +1,5 @@
 package com.example.socialnetwork.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@Table(name = "dialog")
 public class Dialog {
 
     @Id
@@ -28,7 +28,6 @@ public class Dialog {
     )
     private List<Client> clients;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "dialog")
     private List<Message> messages;
 
@@ -37,5 +36,10 @@ public class Dialog {
 
     public Dialog(String name) {
         this.name = name;
+    }
+
+    public Dialog(String name, List<Client> clients) {
+        this.name = name;
+        this.clients = clients;
     }
 }

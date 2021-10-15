@@ -1,15 +1,16 @@
 package com.example.socialnetwork.service;
 
+import com.example.socialnetwork.dto.MessageDTO;
 import com.example.socialnetwork.entity.Message;
 
 import java.util.List;
 
 public interface MessageService {
-    List<Message> getMessagesByDialog(Long dialogId);
+    List<MessageDTO> getMessagesByDialog(Long dialogId);
 
-    Message sendMessage(Long dialogId, Long clientId, Message message);
+    MessageDTO sendMessage(Long dialogId, MessageDTO message);
 
-    Message editMessage(Message message);
+    MessageDTO editMessage(Long dialogId, MessageDTO message);
 
-    Message deleteMessage(Long messageId);
+    void deleteMessage(Long messageId);
 }

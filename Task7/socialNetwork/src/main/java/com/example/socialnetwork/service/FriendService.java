@@ -1,13 +1,13 @@
 package com.example.socialnetwork.service;
 
-import com.example.socialnetwork.entity.Client;
+import com.example.socialnetwork.dto.ShortClientDTO;
 
 import java.util.List;
 
 public interface FriendService {
-    List<Client> getUserFriends(Long userId);
+    List<ShortClientDTO> getUserFriends(Long userId);
 
-    Client deleteFriend(Long firstClientId, Long secondClientId);
+    void deleteFriend(Long firstClientId, Long secondClientId);
 
-    Client addFriend(Long firstClient, Long secondClient);
+    ShortClientDTO addFriend(Long firstClient, Long secondClient);
 }

@@ -1,15 +1,16 @@
 package com.example.socialnetwork.service;
 
+import com.example.socialnetwork.dto.DialogDTO;
 import com.example.socialnetwork.entity.Dialog;
 
 import java.util.List;
 
 public interface DialogService {
-    List<Dialog> getDialogsByClientId(Long clientId);
+    List<DialogDTO> getDialogsByClientId(Long clientId);
 
-    Dialog createDialog(String name, Long[] usersId);
+    DialogDTO createDialog(DialogDTO dto);
 
-    Dialog deleteDialog(Long id);
+    void deleteDialog(Long id);
 
-    Dialog addUserToDialog(Long dialogId, Long clientId);
+    DialogDTO addUserToDialog(Long dialogId, Long clientId);
 }

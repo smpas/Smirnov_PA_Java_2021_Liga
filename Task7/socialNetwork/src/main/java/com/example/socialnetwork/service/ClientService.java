@@ -1,23 +1,25 @@
 package com.example.socialnetwork.service;
 
+import com.example.socialnetwork.dto.ClientProfileDTO;
+import com.example.socialnetwork.dto.ShortClientDTO;
 import com.example.socialnetwork.entity.Client;
 
 import java.util.List;
 
 public interface ClientService {
-    List<Client> getAllClients();
+    List<ShortClientDTO> getAllClients();
 
-    Client getClientById(Long id);
+    ClientProfileDTO getClientById(Long id);
 
-    List<Client> getClientsByNameAndSurname(String name, String surname);
+    List<ShortClientDTO> getClientsByNameAndSurname(String name, String surname);
 
-    Client getClientByNickname(String nickname);
+    ClientProfileDTO getClientByNickname(String nickname);
 
-    List<Client> getAllClientsBySchoolId(Long schoolId);
+    List<ShortClientDTO> getAllClientsBySchoolId(Long schoolId);
 
-    Client addNewClient(Client client);
+    ShortClientDTO addNewClient(ShortClientDTO client);
 
-    Client updateClient(Client client);
+    ShortClientDTO updateClient(ShortClientDTO client);
 
-    Client deleteClient(Long id);
+    void deleteClient(Long id);
 }
