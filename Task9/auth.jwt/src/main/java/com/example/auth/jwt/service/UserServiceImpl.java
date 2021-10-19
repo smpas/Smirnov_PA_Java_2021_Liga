@@ -1,5 +1,6 @@
 package com.example.auth.jwt.service;
 
+import com.example.auth.jwt.dto.UserDTO;
 import com.example.auth.jwt.entity.Role;
 import com.example.auth.jwt.entity.User;
 import com.example.auth.jwt.repository.RoleRepository;
@@ -56,8 +57,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public List<User> getUsers() {
-        return userRepository.findAll();
+    public List<UserDTO> getUsers() {
+        List<UserDTO> DTOs = new ArrayList<>();
+        List<User> users = userRepository.findAll();
+
+        for (User user : users) {
+            DTOs.add(new UserDTO(user.getId(), user.getName(), user.getUsername()));
+        }
+        return DTOs;
     }
 
 
