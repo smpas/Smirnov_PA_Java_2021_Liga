@@ -6,54 +6,42 @@ import com.example.socialnetwork.entity.Dialog;
 import com.example.socialnetwork.exception.EntityNotFoundException;
 import com.example.socialnetwork.repository.ClientRepository;
 import com.example.socialnetwork.repository.DialogRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class DialogServiceImpl implements DialogService {
     private final DialogRepository dialogRepository;
     private final ClientRepository clientRepository;
 
-    @Autowired
-    public DialogServiceImpl(DialogRepository dialogRepository, ClientRepository clientRepository) {
-        this.dialogRepository = dialogRepository;
-        this.clientRepository = clientRepository;
-    }
-
     @Override
     public List<DialogDTO> getDialogsByClientId(Long clientId) {
-        Optional<Client> client = clientRepository.findById(clientId);
-        List<DialogDTO> DTOs = new LinkedList<>();
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new EntityNotFoundException(Client.class.getName(), clientId));
 
-        if (client.isPresent()) {
-            List<Dialog> dialogs = dialogRepository.findDialogsByClientsContains(client.get());
-            for (Dialog dialog : dialogs) {
-                DTOs.add(convertDialogToDTO(dialog));
-            }
-        } else {
-            throw new EntityNotFoundException("Client", clientId);
+        List<DialogDTO> DTOs = new LinkedList<>();
+        List<Dialog> dialogs = dialogRepository.findDialogsByClientsContains(client);
+        for (Dialog dialog : dialogs) {
+            DTOs.add(convertDialogToDTO(dialog));
         }
 
         return DTOs;
     }
 
     @Override
+    @Transactional
     public DialogDTO createDialog(DialogDTO dto) {
         List<Client> clients = new LinkedList<>();
-        Optional<Client> client;
 
         for (Long clientId : dto.getClients()) {
-            client = clientRepository.findById(clientId);
-
-            if (client.isPresent()) {
-                clients.add(client.get());
-            } else {
-                throw new EntityNotFoundException("Client", clientId);
-            }
+            clients.add(clientRepository.findById(clientId)
+                    .orElseThrow(() -> new EntityNotFoundException(Client.class.getName(), clientId)));
         }
 
         Dialog newDialog = dialogRepository.save(new Dialog(dto.getName(), clients));
@@ -61,33 +49,25 @@ public class DialogServiceImpl implements DialogService {
     }
 
     @Override
+    @Transactional
     public void deleteDialog(Long id) {
-        Optional<Dialog> deletingDialog = dialogRepository.findById(id);
-
-        if (deletingDialog.isPresent()) {
-            dialogRepository.delete(deletingDialog.get());
-        } else {
-            throw new EntityNotFoundException("Dialog", id);
-        }
+        Dialog deletingDialog = dialogRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(Dialog.class.getName(), id));
+        dialogRepository.delete(deletingDialog);
     }
 
     @Override
+    @Transactional
     public DialogDTO addUserToDialog(Long dialogId, Long clientId) {
-        Optional<Dialog> dialog = dialogRepository.findById(dialogId);
-        Optional<Client> client = clientRepository.findById(clientId);
-        if (dialog.isEmpty()) {
-            throw new EntityNotFoundException("Dialog", dialogId);
-        }
-        if (client.isEmpty()) {
-            throw new EntityNotFoundException("Client", clientId);
-        }
+        Dialog editingDialog = dialogRepository.findById(dialogId)
+                .orElseThrow(() -> new EntityNotFoundException(Dialog.class.getName(), dialogId));
+        Client newClient = clientRepository.findById(clientId)
+                .orElseThrow(() -> new EntityNotFoundException(Client.class.getName(), clientId));
 
-        Dialog editingDialog = dialog.get();
-        Client newClient = client.get();
         List<Client> clients = editingDialog.getClients();
-
         clients.add(newClient);
         editingDialog.setClients(clients);
+
         return convertDialogToDTO(dialogRepository.save(editingDialog));
     }
 

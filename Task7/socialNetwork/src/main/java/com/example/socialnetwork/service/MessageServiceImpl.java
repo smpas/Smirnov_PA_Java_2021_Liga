@@ -8,61 +8,45 @@ import com.example.socialnetwork.exception.EntityNotFoundException;
 import com.example.socialnetwork.repository.ClientRepository;
 import com.example.socialnetwork.repository.DialogRepository;
 import com.example.socialnetwork.repository.MessageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final DialogRepository dialogRepository;
     private final ClientRepository clientRepository;
 
-    @Autowired
-    public MessageServiceImpl(MessageRepository messageRepository, DialogRepository dialogRepository, ClientRepository clientRepository) {
-        this.messageRepository = messageRepository;
-        this.dialogRepository = dialogRepository;
-        this.clientRepository = clientRepository;
-    }
-
     @Override
     public List<MessageDTO> getMessagesByDialog(Long dialogId) {
-        Optional<Dialog> dialog = dialogRepository.findById(dialogId);
+        Dialog dialog = dialogRepository.findById(dialogId)
+                .orElseThrow(() -> new EntityNotFoundException(Dialog.class.getName(), dialogId));
+
         List<MessageDTO> dto = new LinkedList<>();
-
-        if (dialog.isPresent()) {
-            List<Message> messages = messageRepository.findMessagesByDialog(dialog.get());
-
-            for (Message message : messages) {
-                dto.add(new MessageDTO(message.getId(), message.getClient().getId(), message.getDate(),
-                        message.getText()));
-            }
-            return dto;
-
-        } else {
-            throw new EntityNotFoundException("Dialog", dialogId);
+        List<Message> messages = messageRepository.findMessagesByDialog(dialog);
+        for (Message message : messages) {
+            dto.add(new MessageDTO(message.getId(), message.getClient().getId(), message.getDate(),
+                    message.getText()));
         }
+        return dto;
     }
 
     @Override
     @Transactional
     public MessageDTO sendMessage(Long dialogId, MessageDTO message) {
-        Optional<Dialog> dialog = dialogRepository.findById(dialogId);
-        Optional<Client> sender = clientRepository.findById(message.getClient());
+        Dialog dialog = dialogRepository.findById(dialogId)
+                .orElseThrow(() -> new EntityNotFoundException(Dialog.class.getName(), dialogId));
+        Client sender = clientRepository.findById(message.getClient())
+                .orElseThrow(() -> new EntityNotFoundException(Client.class.getName(), message.getClient()));
 
-        if (dialog.isEmpty()) {
-            throw new EntityNotFoundException("Dialog", dialogId);
-        }
-        if (sender.isEmpty()) {
-            throw new EntityNotFoundException("Client", message.getClient());
-        }
-
-        Message sendingMessage = new Message(sender.get(), dialog.get(), new Timestamp(System.currentTimeMillis()),
+        Message sendingMessage = new Message(sender, dialog, new Timestamp(System.currentTimeMillis()),
                 message.getText());
         sendingMessage = messageRepository.save(sendingMessage);
 
@@ -71,29 +55,24 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    @Transactional
     public MessageDTO editMessage(Long dialogId, MessageDTO message) {
-        Optional<Message> oldMessage = messageRepository.findById(message.getId());
+        Message editingMessage = messageRepository.findById(message.getId())
+                .orElseThrow(() -> new EntityNotFoundException(Message.class.getName(), message.getId()));
 
-        if (oldMessage.isPresent()) {
-            Message editingMessage = oldMessage.get();
-            editingMessage.setText(message.getText());
-            editingMessage = messageRepository.save(editingMessage);
+        editingMessage.setText(message.getText());
+        editingMessage = messageRepository.save(editingMessage);
 
-            return new MessageDTO(editingMessage.getId(), editingMessage.getClient().getId(), editingMessage.getDate(),
-                    editingMessage.getText());
-        } else {
-            throw new EntityNotFoundException("Dialog", dialogId);
-        }
+        return new MessageDTO(editingMessage.getId(), editingMessage.getClient().getId(), editingMessage.getDate(),
+                editingMessage.getText());
     }
 
     @Override
+    @Transactional
     public void deleteMessage(Long messageId) {
-        Optional<Message> message = messageRepository.findById(messageId);
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new EntityNotFoundException(Message.class.getName(), messageId));
 
-        if (message.isPresent()) {
-            messageRepository.delete(message.get());
-        } else {
-            throw new EntityNotFoundException("Message", messageId);
-        }
+        messageRepository.delete(message);
     }
 }

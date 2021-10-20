@@ -19,9 +19,9 @@ public class PostController {
         this.postService = postService;
     }
 
-    @GetMapping("/{user_id}/posts")
-    public ResponseEntity<List<PostDTO>> getAllPostsOfClient(@PathVariable Long user_id) {
-        return new ResponseEntity<>(postService.getPostsByClientId(user_id), HttpStatus.OK);
+    @GetMapping("/{userId}/posts")
+    public ResponseEntity<List<PostDTO>> getAllPostsOfClient(@PathVariable Long userId) {
+        return new ResponseEntity<>(postService.getPostsByClientId(userId), HttpStatus.OK);
     }
 
     @PostMapping(value = "/posts")
@@ -34,9 +34,9 @@ public class PostController {
         return new ResponseEntity<>(postService.editPost(post), HttpStatus.OK);
     }
 
-    @DeleteMapping("/posts/{post_id}")
-    public ResponseEntity<?> deletePost(@PathVariable Long post_id) {
-        postService.deletePost(post_id);
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<?> deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

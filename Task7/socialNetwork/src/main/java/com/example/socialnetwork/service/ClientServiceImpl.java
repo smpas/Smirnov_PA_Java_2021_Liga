@@ -11,23 +11,19 @@ import com.example.socialnetwork.exception.ClientException;
 import com.example.socialnetwork.exception.EntityNotFoundException;
 import com.example.socialnetwork.repository.ClientRepository;
 import com.example.socialnetwork.repository.SchoolRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
     private final SchoolRepository schoolRepository;
-
-    @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, SchoolRepository schoolRepository) {
-        this.clientRepository = clientRepository;
-        this.schoolRepository = schoolRepository;
-    }
 
     @Override
     public List<ShortClientDTO> getAllClients() {
@@ -37,12 +33,9 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientProfileDTO getClientById(Long id) {
-        Optional<Client> client = clientRepository.findById(id);
-        if (client.isPresent()) {
-            return convertClientToProfileDTO(client.get());
-        } else {
-            throw new EntityNotFoundException("Client", id);
-        }
+        return clientRepository.findById(id)
+                .map(this::convertClientToProfileDTO)
+                .orElseThrow(() -> new EntityNotFoundException(Client.class.getName(), id));
     }
 
     @Override
@@ -63,26 +56,23 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public List<ShortClientDTO> getAllClientsBySchoolId(Long schoolId) {
-        Optional<School> school = schoolRepository.findById(schoolId);
-        if (school.isEmpty()) {
-            throw new EntityNotFoundException("School", schoolId);
-        }
+        School school = schoolRepository.findById(schoolId)
+                .orElseThrow(() -> new EntityNotFoundException(School.class.getName(), schoolId));
 
-        List<Client> clients = clientRepository.findClientsBySchool(school.get());
+        List<Client> clients = clientRepository.findClientsBySchool(school);
         return convertClientListToDTOList(clients);
     }
 
     @Override
+    @Transactional
     public ShortClientDTO addNewClient(ShortClientDTO dto) {
         Client client;
 
         if (dto.getSchool() != null) {
-            Optional<School> school = schoolRepository.findById(dto.getSchool());
-            if (school.isPresent()) {
-                client = new Client(dto.getName(), dto.getSurname(), dto.getNickname(), dto.getSex(), school.get());
-            } else {
-                throw new EntityNotFoundException("School", dto.getSchool());
-            }
+            School school = schoolRepository.findById(dto.getSchool())
+                    .orElseThrow(() -> new EntityNotFoundException(School.class.getName(), dto.getSchool()));
+
+            client = new Client(dto.getName(), dto.getSurname(), dto.getNickname(), dto.getSex(), school);
         } else {
             client = new Client(dto.getName(), dto.getSurname(), dto.getNickname(), dto.getSex());
         }
@@ -91,45 +81,33 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    @Transactional
     public ShortClientDTO updateClient(ShortClientDTO dto) {
         if (dto.getId() != null) {
-            Optional<Client> changingClient = clientRepository.findById(dto.getId());
-            Client client;
+            Client client = clientRepository.findById(dto.getId())
+                    .orElseThrow(() -> new EntityNotFoundException(Client.class.getName(), dto.getId()));
+            client.setName(dto.getName());
+            client.setSurname(dto.getSurname());
+            client.setNickname(dto.getNickname());
+            client.setSex(dto.getSex());
 
-            if (changingClient.isPresent()) {
-                client = changingClient.get();
-                client.setName(dto.getName());
-                client.setSurname(dto.getSurname());
-                client.setNickname(dto.getNickname());
-                client.setSex(dto.getSex());
-
-                if (dto.getSchool() != null) {
-                    Optional<School> school = schoolRepository.findById(dto.getSchool());
-                    if (school.isPresent()) {
-                        client.setSchool(school.get());
-                    } else {
-                        throw new EntityNotFoundException("School", dto.getSchool());
-                    }
-                }
-
-            } else {
-                throw new EntityNotFoundException("Client", dto.getId());
+            if (dto.getSchool() != null) {
+                School school = schoolRepository.findById(dto.getSchool())
+                        .orElseThrow(() -> new EntityNotFoundException(School.class.getName(), dto.getSchool()));
+                client.setSchool(school);
             }
             return convertClientToDTO(clientRepository.save(client));
+
         } else {
             throw new ClientException("Didn't get client id.");
         }
     }
 
     @Override
+    @Transactional
     public void deleteClient(Long id) {
-        Optional<Client> deletingClient = clientRepository.findById(id);
-
-        if (deletingClient.isPresent()) {
-            clientRepository.delete(deletingClient.get());
-        } else {
-            throw new EntityNotFoundException("Client", id);
-        }
+        clientRepository.delete(clientRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(Client.class.getName(), id)));
     }
 
     private ShortClientDTO convertClientToDTO(Client client) {

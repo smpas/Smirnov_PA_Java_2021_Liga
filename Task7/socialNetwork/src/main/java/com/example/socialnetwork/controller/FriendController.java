@@ -19,19 +19,19 @@ public class FriendController {
         this.friendService = friendService;
     }
 
-    @GetMapping(value = "/{user_id}/friends")
-    public ResponseEntity<List<ShortClientDTO>> getUserFriends(@PathVariable Long user_id) {
-        return new ResponseEntity<>(friendService.getUserFriends(user_id), HttpStatus.OK);
+    @GetMapping(value = "/{userId}/friends")
+    public ResponseEntity<List<ShortClientDTO>> getUserFriends(@PathVariable Long userId) {
+        return new ResponseEntity<>(friendService.getUserFriends(userId), HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/{user_1}/friends/{user_2}")
-    public ResponseEntity<?> deleteFriend(@PathVariable Long user_1, @PathVariable Long user_2) {
-        friendService.deleteFriend(user_1, user_2);
+    @DeleteMapping(value = "/{user1}/friends/{user2}")
+    public ResponseEntity<?> deleteFriend(@PathVariable Long user1, @PathVariable Long user2) {
+        friendService.deleteFriend(user1, user2);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(value = "/{user_1}/friends/{user_2}")
-    public ResponseEntity<ShortClientDTO> addUserToFriends(@PathVariable Long user_1, @PathVariable Long user_2) {
-        return new ResponseEntity<>(friendService.addFriend(user_1, user_2), HttpStatus.OK);
+    @PostMapping(value = "/{user1}/friends/{user2}")
+    public ResponseEntity<ShortClientDTO> addUserToFriends(@PathVariable Long user1, @PathVariable Long user2) {
+        return new ResponseEntity<>(friendService.addFriend(user1, user2), HttpStatus.OK);
     }
 }

@@ -19,19 +19,19 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-    @GetMapping("/{dialog_id}/messages")
-    public ResponseEntity<List<MessageDTO>> getMessagesByDialog(@PathVariable Long dialog_id) {
-        return new ResponseEntity<>(messageService.getMessagesByDialog(dialog_id), HttpStatus.OK);
+    @GetMapping("/{dialogId}/messages")
+    public ResponseEntity<List<MessageDTO>> getMessagesByDialog(@PathVariable Long dialogId) {
+        return new ResponseEntity<>(messageService.getMessagesByDialog(dialogId), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/{dialog_id}/messages")
-    public ResponseEntity<MessageDTO> sendMessage(@PathVariable Long dialog_id, @RequestBody MessageDTO message) {
-        return new ResponseEntity<>(messageService.sendMessage(dialog_id, message), HttpStatus.OK);
+    @PostMapping(value = "/{dialogId}/messages")
+    public ResponseEntity<MessageDTO> sendMessage(@PathVariable Long dialogId, @RequestBody MessageDTO message) {
+        return new ResponseEntity<>(messageService.sendMessage(dialogId, message), HttpStatus.OK);
     }
 
-    @PutMapping(value = "{dialog_id}/messages")
-    public ResponseEntity<MessageDTO> editMessage(@PathVariable Long dialog_id, @RequestBody MessageDTO message) {
-        return new ResponseEntity<>(messageService.editMessage(dialog_id, message), HttpStatus.OK);
+    @PutMapping(value = "{dialogId}/messages")
+    public ResponseEntity<MessageDTO> editMessage(@PathVariable Long dialogId, @RequestBody MessageDTO message) {
+        return new ResponseEntity<>(messageService.editMessage(dialogId, message), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "messages/{id}")

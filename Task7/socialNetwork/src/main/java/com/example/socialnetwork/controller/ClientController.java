@@ -41,9 +41,9 @@ public class ClientController {
         return new ResponseEntity<>(clientService.getClientByNickname(nickname), HttpStatus.OK);
     }
 
-    @GetMapping(params = "school_id")
-    public ResponseEntity<List<ShortClientDTO>> getClientsBySchoolId(@RequestParam Long school_id) {
-        return new ResponseEntity<>(clientService.getAllClientsBySchoolId(school_id), HttpStatus.OK);
+    @GetMapping(params = "schoolId")
+    public ResponseEntity<List<ShortClientDTO>> getClientsBySchoolId(@RequestParam Long schoolId) {
+        return new ResponseEntity<>(clientService.getAllClientsBySchoolId(schoolId), HttpStatus.OK);
     }
 
     @PostMapping()

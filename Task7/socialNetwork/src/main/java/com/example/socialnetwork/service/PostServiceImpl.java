@@ -6,33 +6,27 @@ import com.example.socialnetwork.entity.Post;
 import com.example.socialnetwork.exception.EntityNotFoundException;
 import com.example.socialnetwork.repository.ClientRepository;
 import com.example.socialnetwork.repository.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final ClientRepository clientRepository;
 
-    @Autowired
-    public PostServiceImpl(PostRepository postRepository, ClientRepository clientRepository) {
-        this.postRepository = postRepository;
-        this.clientRepository = clientRepository;
-    }
-
     @Override
     public List<PostDTO> getPostsByClientId(Long clientId) {
-        Optional<Client> client = clientRepository.findById(clientId);
-        if (client.isEmpty()) {
-            throw new EntityNotFoundException("Client", clientId);
-        }
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new EntityNotFoundException(Client.class.getName(), clientId));
 
-        List<Post> posts = postRepository.findPostsByClientOrderByDateDesc(client.get());
+        List<Post> posts = postRepository.findPostsByClientOrderByDateDesc(client);
         List<PostDTO> DTOs = new LinkedList<>();
         for (Post post : posts) {
             DTOs.add(new PostDTO(post.getId(), post.getClient().getId(), post.getDate(), post.getHeader(),
@@ -43,44 +37,38 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostDTO writeNewPost(PostDTO dto) {
-        Optional<Client> client = clientRepository.findById(dto.getClient());
+        Client client = clientRepository.findById(dto.getClient())
+                .orElseThrow(() -> new EntityNotFoundException(Client.class.getName(), dto.getClient()));
 
-        if (client.isPresent()) {
-            Post newPost = new Post(dto.getHeader(), dto.getText());
-            newPost.setDate(new Timestamp(System.currentTimeMillis()));
-            newPost.setClient(client.get());
-            Post addedPost = postRepository.save(newPost);
-            return new PostDTO(addedPost.getId(), addedPost.getClient().getId(), addedPost.getDate(),
-                    addedPost.getHeader(), addedPost.getText());
-        } else {
-            throw new EntityNotFoundException("Client", dto.getClient());
-        }
+        Post newPost = new Post(dto.getHeader(), dto.getText());
+        newPost.setDate(new Timestamp(System.currentTimeMillis()));
+        newPost.setClient(client);
+        Post addedPost = postRepository.save(newPost);
+
+        return new PostDTO(addedPost.getId(), addedPost.getClient().getId(), addedPost.getDate(),
+                addedPost.getHeader(), addedPost.getText());
     }
 
     @Override
+    @Transactional
     public PostDTO editPost(PostDTO dto) {
-        Optional<Post> editingPost = postRepository.findById(dto.getId());
+        Post editingPost = postRepository.findById(dto.getId())
+                .orElseThrow(() -> new EntityNotFoundException(Post.class.getName(), dto.getId()));
 
-        if (editingPost.isPresent()) {
-            Post editedPost = editingPost.get();
-            editedPost.setHeader(dto.getHeader());
-            editedPost.setText(dto.getText());
-            Post post = postRepository.save(editedPost);
-            return new PostDTO(post.getId(), post.getClient().getId(), post.getDate(), post.getHeader(), post.getText());
-        } else {
-            throw new EntityNotFoundException("Post", dto.getId());
-        }
+        editingPost.setHeader(dto.getHeader());
+        editingPost.setText(dto.getText());
+        Post post = postRepository.save(editingPost);
+        return new PostDTO(post.getId(), post.getClient().getId(), post.getDate(), post.getHeader(), post.getText());
     }
 
     @Override
+    @Transactional
     public void deletePost(Long postId) {
-        Optional<Post> deletingPost = postRepository.findById(postId);
+        Post deletingPost = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException(Post.class.getName(), postId));
 
-        if (deletingPost.isPresent()) {
-            postRepository.delete(deletingPost.get());
-        } else {
-            throw new EntityNotFoundException("Post", postId);
-        }
+        postRepository.delete(deletingPost);
     }
 }

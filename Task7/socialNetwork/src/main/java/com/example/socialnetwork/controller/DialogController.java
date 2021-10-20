@@ -19,9 +19,9 @@ public class DialogController {
         this.dialogService = dialogService;
     }
 
-    @GetMapping(value = "/list/{user_id}")
-    public ResponseEntity<List<DialogDTO>> getDialogsByClientId(@PathVariable Long user_id) {
-        return new ResponseEntity<>(dialogService.getDialogsByClientId(user_id), HttpStatus.OK);
+    @GetMapping(value = "/list/{userId}")
+    public ResponseEntity<List<DialogDTO>> getDialogsByClientId(@PathVariable Long userId) {
+        return new ResponseEntity<>(dialogService.getDialogsByClientId(userId), HttpStatus.OK);
     }
 
     @PostMapping()
@@ -35,8 +35,8 @@ public class DialogController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping(value = "/{dialog_id}/new-user/{user_id}")
-    public ResponseEntity<DialogDTO> addUserToDialog(@PathVariable Long dialog_id, @PathVariable Long user_id) {
-        return new ResponseEntity<>(dialogService.addUserToDialog(dialog_id, user_id), HttpStatus.OK);
+    @PutMapping(value = "/{dialog_id}/new-user/{userId}")
+    public ResponseEntity<DialogDTO> addUserToDialog(@PathVariable Long dialog_id, @PathVariable Long userId) {
+        return new ResponseEntity<>(dialogService.addUserToDialog(dialog_id, userId), HttpStatus.OK);
     }
 }
