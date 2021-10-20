@@ -3,62 +3,46 @@ package com.example.socialnetwork.controller;
 import com.example.socialnetwork.dto.ClientProfileDTO;
 import com.example.socialnetwork.dto.ShortClientDTO;
 import com.example.socialnetwork.service.ClientService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController()
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class ClientController {
     private final ClientService clientService;
 
-    @Autowired
-    public ClientController(ClientService clientService) {
-        this.clientService = clientService;
-    }
-
-    @GetMapping()
-    public ResponseEntity<List<ShortClientDTO>> getAllClients() {
-        return new ResponseEntity<>(clientService.getAllClients(), HttpStatus.OK);
+    @GetMapping
+    public Page<ShortClientDTO> getClientsByParameters(@RequestParam(required = false) String name,
+                                                       @RequestParam(required = false) String surname,
+                                                       @RequestParam(required = false) String nickname,
+                                                       @RequestParam(required = false) Long schoolId,
+                                                       @PageableDefault(sort = {"id"},
+                                                               direction = Sort.Direction.ASC) Pageable pageable) {
+        return clientService.getClientsByParameters(name, surname, nickname, schoolId, pageable);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientProfileDTO> getClientById(@PathVariable Long id) {
-        return new ResponseEntity<>(clientService.getClientById(id), HttpStatus.OK);
-    }
-
-    @GetMapping(params = {"name", "surname"})
-    public ResponseEntity<List<ShortClientDTO>> getClientsByNameAndSurname(@RequestParam String name,
-                                                                           @RequestParam String surname) {
-        return new ResponseEntity<>(clientService.getClientsByNameAndSurname(name, surname), HttpStatus.OK);
-    }
-
-    @GetMapping(params = "nickname")
-    public ResponseEntity<ClientProfileDTO> getClientByNickname(@RequestParam String nickname) {
-        return new ResponseEntity<>(clientService.getClientByNickname(nickname), HttpStatus.OK);
-    }
-
-    @GetMapping(params = "schoolId")
-    public ResponseEntity<List<ShortClientDTO>> getClientsBySchoolId(@RequestParam Long schoolId) {
-        return new ResponseEntity<>(clientService.getAllClientsBySchoolId(schoolId), HttpStatus.OK);
+    public ClientProfileDTO getClientById(@PathVariable Long id) {
+        return clientService.getClientById(id);
     }
 
     @PostMapping()
-    public ResponseEntity<ShortClientDTO> addNewClient(@RequestBody ShortClientDTO client) {
-        return new ResponseEntity<>(clientService.addNewClient(client), HttpStatus.OK);
+    public ShortClientDTO addNewClient(@RequestBody ShortClientDTO client) {
+        return clientService.addNewClient(client);
     }
 
     @PutMapping()
-    public ResponseEntity<ShortClientDTO> updateClient(@RequestBody ShortClientDTO client) {
-        return new ResponseEntity<>(clientService.updateClient(client), HttpStatus.OK);
+    public ShortClientDTO updateClient(@RequestBody ShortClientDTO client) {
+        return clientService.updateClient(client);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteClient(@PathVariable Long id) {
+    public void deleteClient(@PathVariable Long id) {
         clientService.deleteClient(id);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

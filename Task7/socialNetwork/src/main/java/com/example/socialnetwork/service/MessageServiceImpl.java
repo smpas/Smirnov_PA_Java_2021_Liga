@@ -9,12 +9,13 @@ import com.example.socialnetwork.repository.ClientRepository;
 import com.example.socialnetwork.repository.DialogRepository;
 import com.example.socialnetwork.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.function.Function;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,17 +26,20 @@ public class MessageServiceImpl implements MessageService {
     private final ClientRepository clientRepository;
 
     @Override
-    public List<MessageDTO> getMessagesByDialog(Long dialogId) {
+    public Page<MessageDTO> getMessagesByDialog(Long dialogId, Pageable pageable) {
         Dialog dialog = dialogRepository.findById(dialogId)
                 .orElseThrow(() -> new EntityNotFoundException(Dialog.class.getName(), dialogId));
 
-        List<MessageDTO> dto = new LinkedList<>();
-        List<Message> messages = messageRepository.findMessagesByDialog(dialog);
-        for (Message message : messages) {
-            dto.add(new MessageDTO(message.getId(), message.getClient().getId(), message.getDate(),
-                    message.getText()));
-        }
-        return dto;
+        Page<Message> messagePage = messageRepository.findMessagesByDialog(dialog, pageable);
+        Page<MessageDTO> messageDTOPage = messagePage.map(new Function<Message, MessageDTO>() {
+            @Override
+            public MessageDTO apply(Message message) {
+                return new MessageDTO(message.getId(), message.getClient().getId(), message.getDate(),
+                        message.getText());
+            }
+        });
+
+        return messageDTOPage;
     }
 
     @Override

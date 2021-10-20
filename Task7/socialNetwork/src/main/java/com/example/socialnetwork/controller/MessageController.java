@@ -2,41 +2,38 @@ package com.example.socialnetwork.controller;
 
 import com.example.socialnetwork.dto.MessageDTO;
 import com.example.socialnetwork.service.MessageService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/dialogs")
+@RequiredArgsConstructor
 public class MessageController {
     private final MessageService messageService;
 
-    @Autowired
-    public MessageController(MessageService messageService) {
-        this.messageService = messageService;
-    }
-
     @GetMapping("/{dialogId}/messages")
-    public ResponseEntity<List<MessageDTO>> getMessagesByDialog(@PathVariable Long dialogId) {
-        return new ResponseEntity<>(messageService.getMessagesByDialog(dialogId), HttpStatus.OK);
+    public Page<MessageDTO> getMessagesByDialog(@PathVariable Long dialogId,
+                                                @PageableDefault(sort = {"id"},
+                                                        direction = Sort.Direction.ASC) Pageable pageable) {
+        return messageService.getMessagesByDialog(dialogId, pageable);
     }
 
     @PostMapping(value = "/{dialogId}/messages")
-    public ResponseEntity<MessageDTO> sendMessage(@PathVariable Long dialogId, @RequestBody MessageDTO message) {
-        return new ResponseEntity<>(messageService.sendMessage(dialogId, message), HttpStatus.OK);
+    public MessageDTO sendMessage(@PathVariable Long dialogId, @RequestBody MessageDTO message) {
+        return messageService.sendMessage(dialogId, message);
     }
 
     @PutMapping(value = "{dialogId}/messages")
-    public ResponseEntity<MessageDTO> editMessage(@PathVariable Long dialogId, @RequestBody MessageDTO message) {
-        return new ResponseEntity<>(messageService.editMessage(dialogId, message), HttpStatus.OK);
+    public MessageDTO editMessage(@PathVariable Long dialogId, @RequestBody MessageDTO message) {
+        return messageService.editMessage(dialogId, message);
     }
 
     @DeleteMapping(value = "messages/{id}")
-    public ResponseEntity<?> deleteMessage(@PathVariable Long id) {
+    public void deleteMessage(@PathVariable Long id) {
         messageService.deleteMessage(id);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

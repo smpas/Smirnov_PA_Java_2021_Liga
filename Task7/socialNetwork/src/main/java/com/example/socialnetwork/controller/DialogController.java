@@ -2,41 +2,38 @@ package com.example.socialnetwork.controller;
 
 import com.example.socialnetwork.dto.DialogDTO;
 import com.example.socialnetwork.service.DialogService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/dialogs")
+@RequiredArgsConstructor
 public class DialogController {
     private final DialogService dialogService;
 
-    @Autowired
-    public DialogController(DialogService dialogService) {
-        this.dialogService = dialogService;
-    }
-
     @GetMapping(value = "/list/{userId}")
-    public ResponseEntity<List<DialogDTO>> getDialogsByClientId(@PathVariable Long userId) {
-        return new ResponseEntity<>(dialogService.getDialogsByClientId(userId), HttpStatus.OK);
+    public Page<DialogDTO> getDialogsByClientId(@PathVariable Long userId,
+                                                @PageableDefault(sort = {"id"},
+                                                        direction = Sort.Direction.ASC) Pageable pageable) {
+        return dialogService.getDialogsByClientId(userId, pageable);
     }
 
     @PostMapping()
-    public ResponseEntity<DialogDTO> createDialog(@RequestBody DialogDTO dialog) {
-        return new ResponseEntity<>(dialogService.createDialog(dialog), HttpStatus.OK);
+    public DialogDTO createDialog(@RequestBody DialogDTO dialog) {
+        return dialogService.createDialog(dialog);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteDialog(@PathVariable Long id) {
+    public void deleteDialog(@PathVariable Long id) {
         dialogService.deleteDialog(id);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping(value = "/{dialog_id}/new-user/{userId}")
-    public ResponseEntity<DialogDTO> addUserToDialog(@PathVariable Long dialog_id, @PathVariable Long userId) {
-        return new ResponseEntity<>(dialogService.addUserToDialog(dialog_id, userId), HttpStatus.OK);
+    public DialogDTO addUserToDialog(@PathVariable Long dialog_id, @PathVariable Long userId) {
+        return dialogService.addUserToDialog(dialog_id, userId);
     }
 }

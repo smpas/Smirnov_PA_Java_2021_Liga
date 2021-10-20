@@ -2,20 +2,14 @@ package com.example.socialnetwork.service;
 
 import com.example.socialnetwork.dto.ClientProfileDTO;
 import com.example.socialnetwork.dto.ShortClientDTO;
-import com.example.socialnetwork.entity.Client;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ClientService {
-    List<ShortClientDTO> getAllClients();
-
     ClientProfileDTO getClientById(Long id);
 
-    List<ShortClientDTO> getClientsByNameAndSurname(String name, String surname);
-
-    ClientProfileDTO getClientByNickname(String nickname);
-
-    List<ShortClientDTO> getAllClientsBySchoolId(Long schoolId);
+    Page<ShortClientDTO> getClientsByParameters(String name, String surname, String nickname, Long schoolId,
+                                                Pageable pageable);
 
     ShortClientDTO addNewClient(ShortClientDTO client);
 

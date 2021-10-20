@@ -1,17 +1,17 @@
 CREATE TABLE IF NOT EXISTS school
 (
     id SERIAL PRIMARY KEY,
-    name CHAR(30) NOT NULL,
-    address CHAR(50)
+    name CHARACTER VARYING(30) NOT NULL,
+    address CHARACTER VARYING(50)
 );
 
 CREATE TABLE IF NOT EXISTS client
 (
     id SERIAL PRIMARY KEY,
-    name CHAR(30) NOT NULL,
-    surname CHAR(30) NOT NULL,
-    nickname CHAR(30) UNIQUE NOT NULL,
-    sex CHAR(1),
+    name CHARACTER VARYING(30) NOT NULL,
+    surname CHARACTER VARYING(30) NOT NULL,
+    nickname CHARACTER VARYING(30) UNIQUE NOT NULL,
+    sex CHARACTER VARYING(1),
     school_id INTEGER,
     FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE SET NULL
 );
@@ -30,15 +30,15 @@ CREATE TABLE IF NOT EXISTS post
     id SERIAL PRIMARY KEY,
     client_id INTEGER,
     date TIMESTAMP NOT NULL,
-    header CHAR(50),
-    text CHAR(300) NOT NULL,
+    header CHARACTER VARYING(50),
+    text CHARACTER VARYING(300) NOT NULL,
     FOREIGN KEY (client_id) REFERENCES client(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS dialog
 (
     id SERIAL PRIMARY KEY,
-    name CHAR(30)
+    name CHARACTER VARYING(30)
 );
 
 CREATE TABLE IF NOT EXISTS client_dialog
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS message
     client_id INTEGER,
     dialog_id INTEGER,
     Date TIMESTAMP NOT NULL,
-    Text CHAR(300) NOT NULL,
+    Text CHARACTER VARYING(300) NOT NULL,
     FOREIGN KEY (client_id) REFERENCES client(id) ON DELETE SET NULL,
     FOREIGN KEY (dialog_id) REFERENCES dialog(Id) ON DELETE CASCADE
 );

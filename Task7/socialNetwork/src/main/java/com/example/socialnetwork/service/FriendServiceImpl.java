@@ -7,11 +7,12 @@ import com.example.socialnetwork.exception.EntityNotFoundException;
 import com.example.socialnetwork.repository.ClientRepository;
 import com.example.socialnetwork.repository.FriendRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.function.Function;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,17 +22,19 @@ public class FriendServiceImpl implements FriendService {
     private final ClientRepository clientRepository;
 
     @Override
-    public List<ShortClientDTO> getUserFriends(Long clientId) {
+    public Page<ShortClientDTO> getUserFriends(Long clientId, Pageable pageable) {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new EntityNotFoundException(Client.class.getName(), clientId));
 
-        List<Friend> friends = friendRepository.findFriendsByFirstClient(client);
-        List<ShortClientDTO> clients = new LinkedList<>();
-        for (Friend friend : friends) {
-            clients.add(convertClientToDTO(friend.getSecondClient()));
-        }
+        Page<Friend> friendsPage = friendRepository.findFriendsByFirstClient(client, pageable);
+        Page<ShortClientDTO> friendsDTOPage = friendsPage.map(new Function<Friend, ShortClientDTO>() {
+            @Override
+            public ShortClientDTO apply(Friend friend) {
+                return convertClientToDTO(friend.getSecondClient());
+            }
+        });
 
-        return clients;
+        return friendsDTOPage;
     }
 
     @Override

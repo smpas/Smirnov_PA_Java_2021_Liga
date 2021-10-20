@@ -1,12 +1,11 @@
 package com.example.socialnetwork.service;
 
 import com.example.socialnetwork.dto.MessageDTO;
-import com.example.socialnetwork.entity.Message;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface MessageService {
-    List<MessageDTO> getMessagesByDialog(Long dialogId);
+    Page<MessageDTO> getMessagesByDialog(Long dialogId, Pageable pageable);
 
     MessageDTO sendMessage(Long dialogId, MessageDTO message);
 

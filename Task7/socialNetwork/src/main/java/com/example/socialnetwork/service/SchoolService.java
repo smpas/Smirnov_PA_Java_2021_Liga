@@ -1,11 +1,11 @@
 package com.example.socialnetwork.service;
 
 import com.example.socialnetwork.dto.SchoolDTO;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface SchoolService {
-    List<SchoolDTO> getAllSchools();
+    Page<SchoolDTO> getAllSchools(Pageable pageable);
 
     SchoolDTO getSchoolById(Long id);
 

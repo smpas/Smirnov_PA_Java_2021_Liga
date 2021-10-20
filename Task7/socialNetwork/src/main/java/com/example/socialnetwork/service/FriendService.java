@@ -1,11 +1,11 @@
 package com.example.socialnetwork.service;
 
 import com.example.socialnetwork.dto.ShortClientDTO;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface FriendService {
-    List<ShortClientDTO> getUserFriends(Long userId);
+    Page<ShortClientDTO> getUserFriends(Long userId, Pageable pageable);
 
     void deleteFriend(Long firstClientId, Long secondClientId);
 

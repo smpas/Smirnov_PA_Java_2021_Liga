@@ -17,16 +17,16 @@ public class Client {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name", length = 30, nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "surname", length = 30, nullable = false)
+    @Column(name = "surname", nullable = false)
     private String surname;
 
-    @Column(name = "nickname", length = 30, unique = true)
+    @Column(name = "nickname", unique = true)
     private String nickname;
 
-    @Column(name = "sex", length = 1)
+    @Column(name = "sex")
     private String sex;
 
     @ManyToOne()

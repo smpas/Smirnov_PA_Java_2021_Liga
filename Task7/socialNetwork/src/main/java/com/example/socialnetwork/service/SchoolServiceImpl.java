@@ -6,11 +6,14 @@ import com.example.socialnetwork.entity.School;
 import com.example.socialnetwork.exception.EntityNotFoundException;
 import com.example.socialnetwork.repository.SchoolRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Pageable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 @Service
 @Transactional(readOnly = true)
@@ -19,14 +22,16 @@ public class SchoolServiceImpl implements SchoolService {
     private final SchoolRepository repository;
 
     @Override
-    public List<SchoolDTO> getAllSchools() {
-        List<School> schools = (List<School>) repository.findAll();
-        List<SchoolDTO> schoolDTOS = new ArrayList<>();
+    public Page<SchoolDTO> getAllSchools(Pageable pageable) {
+        Page<School> schools = repository.findAll(pageable);
+        Page<SchoolDTO> schoolDTOs = schools.map(new Function<School, SchoolDTO>() {
+            @Override
+            public SchoolDTO apply(School school) {
+                return convertSchoolToDTO(school);
+            }
+        });
 
-        for (School school : schools) {
-            schoolDTOS.add(convertSchoolToDTO(school));
-        }
-        return schoolDTOS;
+        return schoolDTOs;
     }
 
     @Override

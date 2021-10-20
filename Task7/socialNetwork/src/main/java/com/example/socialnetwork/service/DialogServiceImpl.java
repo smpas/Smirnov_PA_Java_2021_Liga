@@ -7,11 +7,14 @@ import com.example.socialnetwork.exception.EntityNotFoundException;
 import com.example.socialnetwork.repository.ClientRepository;
 import com.example.socialnetwork.repository.DialogRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,17 +24,19 @@ public class DialogServiceImpl implements DialogService {
     private final ClientRepository clientRepository;
 
     @Override
-    public List<DialogDTO> getDialogsByClientId(Long clientId) {
+    public Page<DialogDTO> getDialogsByClientId(Long clientId, Pageable pageable) {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new EntityNotFoundException(Client.class.getName(), clientId));
 
-        List<DialogDTO> DTOs = new LinkedList<>();
-        List<Dialog> dialogs = dialogRepository.findDialogsByClientsContains(client);
-        for (Dialog dialog : dialogs) {
-            DTOs.add(convertDialogToDTO(dialog));
-        }
+        Page<Dialog> dialogPage = dialogRepository.findDialogsByClientsContains(client, pageable);
+        Page<DialogDTO> dialogDTOPage = dialogPage.map(new Function<Dialog, DialogDTO>() {
+            @Override
+            public DialogDTO apply(Dialog dialog) {
+                return convertDialogToDTO(dialog);
+            }
+        });
 
-        return DTOs;
+        return dialogDTOPage;
     }
 
     @Override

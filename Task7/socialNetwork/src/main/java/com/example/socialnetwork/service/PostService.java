@@ -1,12 +1,11 @@
 package com.example.socialnetwork.service;
 
 import com.example.socialnetwork.dto.PostDTO;
-import com.example.socialnetwork.entity.Post;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PostService {
-    List<PostDTO> getPostsByClientId(Long clientId);
+    Page<PostDTO> getPostsByClientId(Long clientId, Pageable pageable);
 
     PostDTO writeNewPost(PostDTO post);
 

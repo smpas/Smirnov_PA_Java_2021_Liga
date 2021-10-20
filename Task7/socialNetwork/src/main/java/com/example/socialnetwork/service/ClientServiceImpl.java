@@ -12,6 +12,9 @@ import com.example.socialnetwork.exception.EntityNotFoundException;
 import com.example.socialnetwork.repository.ClientRepository;
 import com.example.socialnetwork.repository.SchoolRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,12 +29,6 @@ public class ClientServiceImpl implements ClientService {
     private final SchoolRepository schoolRepository;
 
     @Override
-    public List<ShortClientDTO> getAllClients() {
-        List<Client> clients = (List<Client>) clientRepository.findAll();
-        return convertClientListToDTOList(clients);
-    }
-
-    @Override
     public ClientProfileDTO getClientById(Long id) {
         return clientRepository.findById(id)
                 .map(this::convertClientToProfileDTO)
@@ -39,28 +36,20 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public List<ShortClientDTO> getClientsByNameAndSurname(String name, String surname) {
-        List<Client> clients = clientRepository.findClientsByNameAndSurname(name, surname);
-        return convertClientListToDTOList(clients);
-    }
+    public Page<ShortClientDTO> getClientsByParameters(String name, String surname, String nickname, Long schoolId,
+                                                       Pageable pageable) {
+        List<Client> allClients = (List<Client>) clientRepository.findAll();
+        List<ShortClientDTO> clientDTOS = new LinkedList<>();
 
-    @Override
-    public ClientProfileDTO getClientByNickname(String nickname) {
-        Client client = clientRepository.findClientByNickname(nickname);
-        if (client != null) {
-            return convertClientToProfileDTO(client);
-        } else {
-            throw new ClientException("Client with nickname " + nickname + " not found.");
+        for (Client client : allClients) {
+            if (name != null && !client.getName().equals(name)) continue;
+            if (surname != null && !client.getSurname().equals(surname)) continue;
+            if (nickname != null && !client.getNickname().equals(nickname)) continue;
+            if (schoolId != null && !client.getSchool().getId().equals(schoolId)) continue;
+            clientDTOS.add(convertClientToDTO(client));
         }
-    }
 
-    @Override
-    public List<ShortClientDTO> getAllClientsBySchoolId(Long schoolId) {
-        School school = schoolRepository.findById(schoolId)
-                .orElseThrow(() -> new EntityNotFoundException(School.class.getName(), schoolId));
-
-        List<Client> clients = clientRepository.findClientsBySchool(school);
-        return convertClientListToDTOList(clients);
+        return new PageImpl<>(clientDTOS, pageable, clientDTOS.size());
     }
 
     @Override

@@ -7,12 +7,13 @@ import com.example.socialnetwork.exception.EntityNotFoundException;
 import com.example.socialnetwork.repository.ClientRepository;
 import com.example.socialnetwork.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.function.Function;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,18 +23,20 @@ public class PostServiceImpl implements PostService {
     private final ClientRepository clientRepository;
 
     @Override
-    public List<PostDTO> getPostsByClientId(Long clientId) {
+    public Page<PostDTO> getPostsByClientId(Long clientId, Pageable pageable) {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new EntityNotFoundException(Client.class.getName(), clientId));
 
-        List<Post> posts = postRepository.findPostsByClientOrderByDateDesc(client);
-        List<PostDTO> DTOs = new LinkedList<>();
-        for (Post post : posts) {
-            DTOs.add(new PostDTO(post.getId(), post.getClient().getId(), post.getDate(), post.getHeader(),
-                    post.getText()));
-        }
+        Page<Post> postsPage = postRepository.findPostsByClientOrderByDateDesc(client, pageable);
+        Page<PostDTO> postsDtoPage = postsPage.map(new Function<Post, PostDTO>() {
+            @Override
+            public PostDTO apply(Post post) {
+                return new PostDTO(post.getId(), post.getClient().getId(), post.getDate(), post.getHeader(),
+                        post.getText());
+            }
+        });
 
-        return DTOs;
+        return postsDtoPage;
     }
 
     @Override
