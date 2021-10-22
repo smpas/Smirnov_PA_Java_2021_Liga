@@ -22,4 +22,14 @@ public class TestController {
     public ResponseEntity<List<UserDTO>> getUsers() {
         return new ResponseEntity<>(userService.getUsers(), HttpStatus.OK);
     }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "hello, admin!";
+    }
+
+    @GetMapping("/user")
+    public String user() {
+        return "hello, user!";
+    }
 }

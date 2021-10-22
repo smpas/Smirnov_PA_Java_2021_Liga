@@ -22,16 +22,16 @@ public class Application {
 	@Bean
 	public CommandLineRunner demo(UserService userService) {
 		return (args) -> {
-			Role role1 = userService.saveRole(new Role(null, "USER1"));
-			Role role2 = userService.saveRole(new Role(null, "USER2"));
+			Role role1 = userService.saveRole(new Role(null, "ADMIN"));
+			Role role2 = userService.saveRole(new Role(null, "USER"));
 
 			ArrayList<Role> roles1 = new ArrayList<>();
 			roles1.add(role1);
 			ArrayList<Role> roles2 = new ArrayList<>();
 			roles2.add(role2);
 
-			userService.saveUser(new User(null, "pasha", "smpas", "1703", roles1));
-			userService.saveUser(new User(null, "lesha", "smalex", "1804", roles2));
+			userService.saveUser(new User(null, "pavel", "smpas", "1703", roles1));
+			userService.saveUser(new User(null, "alexey", "smalex", "1804", roles2));
 		};
 	}
 
