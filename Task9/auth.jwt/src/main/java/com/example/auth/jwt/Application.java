@@ -1,5 +1,6 @@
 package com.example.auth.jwt;
 
+import com.example.auth.jwt.dto.UserRegistrationDTO;
 import com.example.auth.jwt.entity.Role;
 import com.example.auth.jwt.entity.User;
 import com.example.auth.jwt.service.UserService;
@@ -22,21 +23,11 @@ public class Application {
 	@Bean
 	public CommandLineRunner demo(UserService userService) {
 		return (args) -> {
-			Role role1 = userService.saveRole(new Role(null, "ADMIN"));
-			Role role2 = userService.saveRole(new Role(null, "USER"));
+			userService.saveRole(new Role(null, "ADMIN"));
+			userService.saveRole(new Role(null, "USER"));
 
-			ArrayList<Role> roles1 = new ArrayList<>();
-			roles1.add(role1);
-			ArrayList<Role> roles2 = new ArrayList<>();
-			roles2.add(role2);
-
-			userService.saveUser(new User(null, "pavel", "smpas", "1703", roles1));
-			userService.saveUser(new User(null, "alexey", "smalex", "1804", roles2));
+			userService.saveUser(new UserRegistrationDTO("pavel", "smpas", "1703", "ADMIN"));
+			userService.saveUser(new UserRegistrationDTO("alexey", "smalex", "1804", "USER"));
 		};
-	}
-
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
 	}
 }

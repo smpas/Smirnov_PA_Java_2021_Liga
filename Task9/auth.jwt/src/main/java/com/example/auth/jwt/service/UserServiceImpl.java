@@ -1,8 +1,10 @@
 package com.example.auth.jwt.service;
 
 import com.example.auth.jwt.dto.UserDTO;
+import com.example.auth.jwt.dto.UserRegistrationDTO;
 import com.example.auth.jwt.entity.Role;
 import com.example.auth.jwt.entity.User;
+import com.example.auth.jwt.exception.RoleNotFoundException;
 import com.example.auth.jwt.repository.RoleRepository;
 import com.example.auth.jwt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,38 +37,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        user.getRoles().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority(role.getName()));
-        });
+        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getName())));
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
     }
 
     @Override
-    public User saveUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+    public UserDTO saveUser(UserRegistrationDTO user) {
+        User newUser = new User();
+        newUser.setName(user.getName());
+        newUser.setUsername(user.getUsername());
+        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        Role role = Optional.ofNullable(roleRepository.findRoleByName(user.getRole()))
+                .orElseThrow(() -> new RoleNotFoundException(user.getRole()));
+        ArrayList<Role> roles = new ArrayList<>();
+        roles.add(role);
+        newUser.setRoles(roles);
+        newUser = userRepository.save(newUser);
+
+        return new UserDTO(newUser.getId(), newUser.getName(), newUser.getUsername());
     }
 
     @Override
     public Role saveRole(Role role) {
         return roleRepository.save(role);
     }
-
-    @Override
-    public User getUser(String username) {
-        return userRepository.findByUsername(username);
-    }
-
-    @Override
-    public List<UserDTO> getUsers() {
-        List<UserDTO> DTOs = new ArrayList<>();
-        List<User> users = userRepository.findAll();
-
-        for (User user : users) {
-            DTOs.add(new UserDTO(user.getId(), user.getName(), user.getUsername()));
-        }
-        return DTOs;
-    }
-
-
 }
