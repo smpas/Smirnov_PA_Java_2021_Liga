@@ -26,9 +26,10 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         MyAuthenticationFilter customAuthenticationFilter = new MyAuthenticationFilter(authenticationManagerBean());
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.authorizeRequests().antMatchers("/user/register").permitAll();
         http.authorizeRequests().antMatchers("/login").permitAll();
-        http.authorizeRequests().antMatchers(HttpMethod.GET, "/admin").hasAuthority("ADMIN");
-        http.authorizeRequests().antMatchers(HttpMethod.GET, "/user").hasAuthority("USER");
+        http.authorizeRequests().antMatchers("/admin/**").hasAuthority("ADMIN");
+        http.authorizeRequests().antMatchers("/user/**").hasAuthority("USER");
         http.addFilter(customAuthenticationFilter);
         http.addFilterBefore(new MyAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
     }

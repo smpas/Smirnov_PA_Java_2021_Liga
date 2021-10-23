@@ -17,15 +17,17 @@ import java.time.LocalDateTime;
 public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(columnDefinition = "TIMESTAMP", name = "time")
     private LocalDateTime time;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private ReservationStatus status;
 }

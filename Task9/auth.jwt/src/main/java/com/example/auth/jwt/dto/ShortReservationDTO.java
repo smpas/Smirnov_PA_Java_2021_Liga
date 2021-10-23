@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
-public class NewReservationDTO {
+public class ShortReservationDTO {
     private Long user;
     private LocalDateTime time;
 }
