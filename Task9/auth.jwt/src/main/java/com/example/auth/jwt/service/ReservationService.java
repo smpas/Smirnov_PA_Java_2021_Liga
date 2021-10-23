@@ -20,4 +20,6 @@ public interface ReservationService {
     ReservationDTO markReservationAsDone(Long reservationId);
 
     ReservationDTO markReservationAsCancelled(Long reservationId);
+
+    public void checkTimeoutReservations();
 }

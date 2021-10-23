@@ -18,4 +18,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findAllByTimeBetween(LocalDateTime time1, LocalDateTime time2);
 
     Reservation findFirstByStatusAndTimeAfter(ReservationStatus status, LocalDateTime time);
+
+    List<Reservation> findAllByStatusAndTimeBefore(ReservationStatus status, LocalDateTime time);
 }

@@ -10,6 +10,7 @@ import com.example.auth.jwt.exception.ReservationNotAvailableException;
 import com.example.auth.jwt.repository.ReservationRepository;
 import com.example.auth.jwt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +30,8 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
 
-    private final LocalTime opening = LocalTime.parse("10:00");
-    private final LocalTime closing = LocalTime.parse("23:00");
+    private final LocalTime opening = LocalTime.parse("00:00");
+    private final LocalTime closing = LocalTime.parse("23:59");
     private final Integer interval = 20;
 
     @Override
@@ -134,6 +135,18 @@ public class ReservationServiceImpl implements ReservationService {
 
         reservation.setStatus(ReservationStatus.CANCELED);
         return convertReservationToDTO(reservationRepository.save(reservation));
+    }
+
+    @Override
+    @Transactional
+    public void checkTimeoutReservations() {
+        List<Reservation> timeoutReservations =
+        reservationRepository.findAllByStatusAndTimeBefore(ReservationStatus.NEW, LocalDateTime.now().minusMinutes(20));
+
+        for (Reservation reservation : timeoutReservations) {
+            reservation.setStatus(ReservationStatus.TIMEOUT);
+            reservationRepository.save(reservation);
+        }
     }
 
     private ShortReservationDTO convertReservationToShortDTO(Reservation reservation) {
