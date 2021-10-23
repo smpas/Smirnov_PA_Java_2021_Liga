@@ -17,7 +17,17 @@ public class AdminController {
     }
 
     @PutMapping("/reservation/{id}/arrived")
-    public ReservationDTO markUserAsArrived(@PathVariable Long id) {
-        return reservationService.markUserAsArrived(id);
+    public ReservationDTO markReservationAsArrived(@PathVariable Long id) {
+        return reservationService.markReservationAsArrived(id);
+    }
+
+    @PutMapping("/reservation/{id}/done")
+    public ReservationDTO markReservationAsDone(@PathVariable Long id) {
+        return reservationService.markReservationAsDone(id);
+    }
+
+    @PutMapping("/reservation/{id}/cancelled")
+    public ReservationDTO cancelReservation(@PathVariable Long id) {
+        return reservationService.markReservationAsCancelled(id);
     }
 }

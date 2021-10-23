@@ -108,11 +108,31 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public ReservationDTO markUserAsArrived(Long reservationId) {
+    public ReservationDTO markReservationAsArrived(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new EntityNotFoundException(Reservation.class.getName(), reservationId));
+                .orElseThrow(() -> new EntityNotFoundException(Reservation.class.getName(), reservationId)); //TODO: проверка статуса на new
 
         reservation.setStatus(ReservationStatus.ARRIVED);
+        return convertReservationToDTO(reservationRepository.save(reservation));
+    }
+
+    @Override
+    @Transactional
+    public ReservationDTO markReservationAsDone(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new EntityNotFoundException(Reservation.class.getName(), reservationId)); //TODO: проверка статуса на arrived
+
+        reservation.setStatus(ReservationStatus.DONE);
+        return convertReservationToDTO(reservationRepository.save(reservation));
+    }
+
+    @Override
+    @Transactional
+    public ReservationDTO markReservationAsCancelled(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new EntityNotFoundException(Reservation.class.getName(), reservationId)); //TODO: проверка статуса на new
+
+        reservation.setStatus(ReservationStatus.CANCELED);
         return convertReservationToDTO(reservationRepository.save(reservation));
     }
 

@@ -15,5 +15,9 @@ public interface ReservationService {
 
     ReservationDTO getClosestReservation();
 
-    ReservationDTO markUserAsArrived(Long reservationId);
+    ReservationDTO markReservationAsArrived(Long reservationId);
+
+    ReservationDTO markReservationAsDone(Long reservationId);
+
+    ReservationDTO markReservationAsCancelled(Long reservationId);
 }
