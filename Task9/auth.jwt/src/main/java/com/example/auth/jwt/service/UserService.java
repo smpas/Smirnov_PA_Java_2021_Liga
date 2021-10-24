@@ -12,4 +12,5 @@ import java.util.List;
 public interface UserService {
     UserDTO saveUser(UserRegistrationDTO user);
     Role saveRole(Role role);
+    Long getUserIdByUsername(String username);
 }

@@ -1,5 +1,6 @@
 package com.example.auth.jwt.config;
 
+import com.example.auth.jwt.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserService userService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -32,7 +34,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/admin/**").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/user/**").hasAuthority("USER");
         http.addFilter(customAuthenticationFilter);
-        http.addFilterBefore(new MyAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new MyAuthorizationFilter(userService), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override

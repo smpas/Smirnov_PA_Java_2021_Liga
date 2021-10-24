@@ -46,8 +46,9 @@ public class MyAuthorizationFilter extends OncePerRequestFilter {
 
                     String username = decodedJWT.getSubject();
 
-                    if (request.getServletPath().equals("/user/reservation")
-                            && "POST".equalsIgnoreCase(request.getMethod())) {
+                    if ((request.getServletPath().equals("/user/reservation")
+                            && ("POST".equalsIgnoreCase(request.getMethod())
+                            || "GET".equalsIgnoreCase(request.getMethod())))) {
                         Long passedId = Long.parseLong(request.getParameter("userId"));
                         Long tokenId = userService.getUserIdByUsername(username);
                         if (!passedId.equals(tokenId)) {

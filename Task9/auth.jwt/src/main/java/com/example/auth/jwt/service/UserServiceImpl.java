@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -63,4 +62,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Role saveRole(Role role) {
         return roleRepository.save(role);
     }
+
+    @Override
+    public Long getUserIdByUsername(String username) {
+        return userRepository.findByUsername(username).getId();
+    }
+
+
 }

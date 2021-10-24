@@ -10,6 +10,7 @@ import com.example.auth.jwt.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -31,13 +32,13 @@ public class UserController {
     }
 
     @PostMapping("/reservation")
-    public ReservationDTO makeReservation(@RequestBody ShortReservationDTO reservation) {
-        return reservationService.makeReservation(reservation);
+    public ReservationDTO makeReservation(@RequestParam Long userId, @RequestParam String time) {
+        return reservationService.makeReservation(new ShortReservationDTO(userId, LocalDateTime.parse(time))); // TODO: передавать пар-ры отдельно
     }
 
-    @GetMapping("/{id}/reservation")
-    public List<ShortReservationDTO> getActiveReservations(@PathVariable Long id) {
-        return reservationService.getActiveReservations(id);
+    @GetMapping("/reservation")
+    public List<ShortReservationDTO> getActiveReservations(@RequestParam Long userId) {
+        return reservationService.getActiveReservations(userId);
     }
 
     @GetMapping("/reservation/{id}/confirming")
