@@ -2,11 +2,8 @@ package com.example.auth.jwt.controller;
 
 import com.example.auth.jwt.dto.ReservationDTO;
 import com.example.auth.jwt.dto.ShortReservationDTO;
-import com.example.auth.jwt.dto.UserDTO;
-import com.example.auth.jwt.dto.UserRegistrationDTO;
 import com.example.auth.jwt.exception.Response;
 import com.example.auth.jwt.service.ReservationService;
-import com.example.auth.jwt.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,14 +14,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-public class UserController {
-    private final UserService userService;
+public class UserReservationController {
     private final ReservationService reservationService;
-
-    @PostMapping("/register")
-    public UserDTO registerNewUser(@RequestBody UserRegistrationDTO user) {
-        return userService.saveUser(user);
-    }
 
     @GetMapping("/schedule/{date}")
     public List<LocalTime> getSchedule(@PathVariable String date) {

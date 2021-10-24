@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
-public class AdminController {
+public class AdminReservationController {
     private final ReservationService reservationService;
 
     @GetMapping("/reservation/closest")

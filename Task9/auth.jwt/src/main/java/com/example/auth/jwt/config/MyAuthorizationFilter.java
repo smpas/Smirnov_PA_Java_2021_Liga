@@ -43,18 +43,8 @@ public class MyAuthorizationFilter extends OncePerRequestFilter {
                     Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
                     JWTVerifier verifier = JWT.require(algorithm).build();
                     DecodedJWT decodedJWT = verifier.verify(token);
-
                     String username = decodedJWT.getSubject();
-
-                    if ((request.getServletPath().equals("/user/reservation")
-                            && ("POST".equalsIgnoreCase(request.getMethod())
-                            || "GET".equalsIgnoreCase(request.getMethod())))) {
-                        Long passedId = Long.parseLong(request.getParameter("userId"));
-                        Long tokenId = userService.getUserIdByUsername(username);
-                        if (!passedId.equals(tokenId)) {
-                            throw new RuntimeException("FORBIDDEN ACCESS"); // TODO: ДРУГОЕ ИСКЛЮЧЕНИЕ СДЕЛАТЬ
-                        }
-                    }
+                    checkUserByIdAndToken(request, username);
 
                     String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
                     Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -75,6 +65,18 @@ public class MyAuthorizationFilter extends OncePerRequestFilter {
                 }
             } else {
                 filterChain.doFilter(request, response);
+            }
+        }
+    }
+
+    private void checkUserByIdAndToken(HttpServletRequest request, String username) {
+        if ((request.getServletPath().equals("/user/reservation")
+                && ("POST".equalsIgnoreCase(request.getMethod()) || "GET".equalsIgnoreCase(request.getMethod())))) {
+            Long passedId = Long.parseLong(request.getParameter("userId"));
+            Long tokenId = userService.getUserIdByUsername(username);
+
+            if (!passedId.equals(tokenId)) {
+                throw new RuntimeException("FORBIDDEN ACCESS");
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.example.auth.jwt;
 
-import com.example.auth.jwt.dto.ShortReservationDTO;
 import com.example.auth.jwt.dto.UserRegistrationDTO;
 import com.example.auth.jwt.entity.Role;
 import com.example.auth.jwt.repository.UserRepository;
@@ -11,8 +10,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import java.time.LocalDateTime;
 
 @SpringBootApplication
 @EnableScheduling
