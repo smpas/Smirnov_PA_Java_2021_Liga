@@ -55,34 +55,22 @@ public class ReservationServiceImpl implements ReservationService {
         LocalDate scheduledDate = LocalDate.parse(date, format);
         List<LocalTime> schedule = new ArrayList<>();
 
-        if (scheduledDate.isBefore(LocalDate.now())) {
-            return schedule;
-        }
-
         LocalDateTime start = scheduledDate.atTime(openingHours);
         LocalDateTime end = scheduledDate.atTime(closingHours);
         List<Reservation> reservations = reservationRepository.findAllByTimeBetween(start, end);
 
-        List<LocalTime> reservedTimeSlots = reservations.stream().map(
-                reservation -> reservation.getTime().toLocalTime()).collect(Collectors.toList());
+        List<LocalDateTime> reservedTimeSlots = reservations.stream()
+                .map(Reservation::getTime)
+                .collect(Collectors.toList());
 
-        LocalTime iterationTime = openingHours;
-        if (scheduledDate.equals(LocalDate.now())) {
-            LocalTime now = LocalTime.now();
-            while (iterationTime.isBefore(closingHours)) {
-                if (iterationTime.isAfter(now) && !reservedTimeSlots.contains(iterationTime)) {
-                    schedule.add(iterationTime);
-                }
-                iterationTime = iterationTime.plusMinutes(intervalMinutes);
+        LocalDateTime iterationTime = LocalDateTime.of(scheduledDate, openingHours);
+        LocalDateTime closingHoursOnScheduledDate = LocalDateTime.of(scheduledDate, closingHours);
+        LocalDateTime now = LocalDateTime.now();
+        while (iterationTime.isBefore(closingHoursOnScheduledDate)) {
+            if (iterationTime.isAfter(now) && !reservedTimeSlots.contains(iterationTime)) {
+                schedule.add(iterationTime.toLocalTime());
             }
-            return schedule;
-        }
-
-        if (scheduledDate.isAfter(LocalDate.now())) {
-            while (iterationTime.isBefore(closingHours)) {
-                schedule.add(iterationTime);
-                iterationTime = iterationTime.plusMinutes(intervalMinutes);
-            }
+            iterationTime = iterationTime.plusMinutes(intervalMinutes);
         }
         return schedule;
     }

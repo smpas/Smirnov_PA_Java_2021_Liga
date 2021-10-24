@@ -52,7 +52,7 @@ public class MyAuthorizationFilter extends OncePerRequestFilter {
                         Long passedId = Long.parseLong(request.getParameter("userId"));
                         Long tokenId = userService.getUserIdByUsername(username);
                         if (!passedId.equals(tokenId)) {
-                            throw new RuntimeException("FORBIDDEN ACCESS");
+                            throw new RuntimeException("FORBIDDEN ACCESS"); // TODO: ДРУГОЕ ИСКЛЮЧЕНИЕ СДЕЛАТЬ
                         }
                     }
 

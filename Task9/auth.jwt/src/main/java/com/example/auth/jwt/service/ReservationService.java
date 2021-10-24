@@ -22,9 +22,9 @@ public interface ReservationService {
 
     ReservationDTO markReservationAsCancelled(Long reservationId);
 
-    public void checkTimeoutReservations();
+    void checkTimeoutReservations();
 
-    public void checkUnconfirmedLinks();
+    void checkUnconfirmedLinks();
 
     Response confirmReservationOnLink(Long reservationId);
 }

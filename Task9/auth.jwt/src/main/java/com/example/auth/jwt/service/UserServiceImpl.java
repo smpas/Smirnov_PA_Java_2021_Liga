@@ -67,6 +67,4 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Long getUserIdByUsername(String username) {
         return userRepository.findByUsername(username).getId();
     }
-
-
 }
