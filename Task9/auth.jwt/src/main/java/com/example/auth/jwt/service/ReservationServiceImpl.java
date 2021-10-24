@@ -11,6 +11,7 @@ import com.example.auth.jwt.exception.Response;
 import com.example.auth.jwt.repository.ReservationRepository;
 import com.example.auth.jwt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,9 +31,23 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
 
-    private static final LocalTime OPENING_HOURS = LocalTime.parse("03:00");
-    private static final LocalTime CLOSING_HOURS = LocalTime.parse("23:00");
-    private static final Integer INTERVAL = 20;
+    @Value("${app.opening}")
+    private LocalTime openingHours;
+
+    @Value("${app.closing}")
+    private LocalTime closingHours;
+
+    @Value("${app.intervalMinutes}")
+    private Integer intervalMinutes;
+
+    @Value("${app.linkExpirationTimeMinutes}")
+    private Integer linkExpirationTimeMinutes;
+
+    @Value("${app.host}")
+    private String appHost;
+
+    @Value("${app.port}")
+    private String appPort;
 
     @Override
     public List<LocalTime> getSchedule(String date) {
@@ -44,29 +59,29 @@ public class ReservationServiceImpl implements ReservationService {
             return schedule;
         }
 
-        LocalDateTime start = scheduledDate.atTime(OPENING_HOURS);
-        LocalDateTime end = scheduledDate.atTime(CLOSING_HOURS);
+        LocalDateTime start = scheduledDate.atTime(openingHours);
+        LocalDateTime end = scheduledDate.atTime(closingHours);
         List<Reservation> reservations = reservationRepository.findAllByTimeBetween(start, end);
 
         List<LocalTime> reservedTimeSlots = reservations.stream().map(
                 reservation -> reservation.getTime().toLocalTime()).collect(Collectors.toList());
 
-        LocalTime iterationTime = OPENING_HOURS;
+        LocalTime iterationTime = openingHours;
         if (scheduledDate.equals(LocalDate.now())) {
             LocalTime now = LocalTime.now();
-            while (iterationTime.isBefore(CLOSING_HOURS)) {
+            while (iterationTime.isBefore(closingHours)) {
                 if (iterationTime.isAfter(now) && !reservedTimeSlots.contains(iterationTime)) {
                     schedule.add(iterationTime);
                 }
-                iterationTime = iterationTime.plusMinutes(INTERVAL);
+                iterationTime = iterationTime.plusMinutes(intervalMinutes);
             }
             return schedule;
         }
 
         if (scheduledDate.isAfter(LocalDate.now())) {
-            while (iterationTime.isBefore(CLOSING_HOURS)) {
+            while (iterationTime.isBefore(closingHours)) {
                 schedule.add(iterationTime);
-                iterationTime = iterationTime.plusMinutes(INTERVAL);
+                iterationTime = iterationTime.plusMinutes(intervalMinutes);
             }
         }
         return schedule;
@@ -84,16 +99,17 @@ public class ReservationServiceImpl implements ReservationService {
                 || (existingReservation != null
                 && (existingReservation.getStatus().equals(ReservationStatus.NEW) ||
                 existingReservation.getStatus().equals(ReservationStatus.UNCONFIRMED)))
-                || time.getMinute() % 20 != 0
-                || time.toLocalTime().isBefore(OPENING_HOURS)
-                || time.toLocalTime().isAfter(CLOSING_HOURS.minusMinutes(1))) {
+                || time.getMinute() % intervalMinutes != 0
+                || time.toLocalTime().isBefore(openingHours)
+                || time.toLocalTime().isAfter(closingHours.minusMinutes(1))) {
             throw new ReservationNotAvailableException(reservationDTO.getTime());
         }
 
         Reservation newReservation = reservationRepository.save
                 (new Reservation(null, user, reservationDTO.getTime(), LocalDateTime.now(), ReservationStatus.UNCONFIRMED));
-        System.out.println("Your confirmation link: http://localhost:8080/user/reservation/" + newReservation.getId() +
-                "/confirming" + "\nIt will be available only for 15 minutes!");
+        System.out.println("Your confirmation link: http://" + appHost + ":" + appPort +
+                "/user/reservation/" + newReservation.getId() +
+                "/confirming" + "\nIt will be available only for " + linkExpirationTimeMinutes + " minutes!");
 
         return new ReservationDTO(newReservation.getId(), newReservation.getUser().getId(),
                 newReservation.getTime(), newReservation.getStatus());
@@ -151,7 +167,7 @@ public class ReservationServiceImpl implements ReservationService {
     public void checkTimeoutReservations() {
         List<Reservation> timeoutReservations =
                 reservationRepository.findAllByStatusAndTimeBefore(ReservationStatus.NEW,
-                        LocalDateTime.now().minusMinutes(20));
+                        LocalDateTime.now().minusMinutes(intervalMinutes));
 
         for (Reservation reservation : timeoutReservations) {
             reservation.setStatus(ReservationStatus.TIMEOUT);
@@ -164,7 +180,7 @@ public class ReservationServiceImpl implements ReservationService {
     public void checkUnconfirmedLinks() {
         List<Reservation> unconfirmedReservations =
                 reservationRepository.findAllByStatusAndCreationTimeBefore(ReservationStatus.UNCONFIRMED,
-                        LocalDateTime.now().minusMinutes(15));
+                        LocalDateTime.now().minusMinutes(linkExpirationTimeMinutes));
 
         for (Reservation reservation : unconfirmedReservations) {
             reservation.setStatus(ReservationStatus.ANNULLED);
@@ -186,7 +202,7 @@ public class ReservationServiceImpl implements ReservationService {
             case ANNULLED:
                 return new Response("Your confirmation link expired");
             case NEW:
-                return new Response("Your reservation has already benn confirmed");
+                return new Response("Your reservation has already been confirmed");
             default:
                 throw new RuntimeException("Bad status of reservation");
         }
