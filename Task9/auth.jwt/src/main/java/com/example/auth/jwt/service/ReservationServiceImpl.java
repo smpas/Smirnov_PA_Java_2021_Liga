@@ -157,10 +157,10 @@ public class ReservationServiceImpl implements ReservationService {
                 reservationRepository.findAllByStatusAndTimeBefore(ReservationStatus.NEW,
                         LocalDateTime.now().minusMinutes(intervalMinutes));
 
-        for (Reservation reservation : timeoutReservations) {
-            reservation.setStatus(ReservationStatus.TIMEOUT);
-            reservationRepository.save(reservation);
-        }
+        timeoutReservations.forEach(r -> {
+            r.setStatus(ReservationStatus.TIMEOUT);
+            reservationRepository.save(r);
+        });
     }
 
     @Override
@@ -170,9 +170,7 @@ public class ReservationServiceImpl implements ReservationService {
                 reservationRepository.findAllByStatusAndCreationTimeBefore(ReservationStatus.UNCONFIRMED,
                         LocalDateTime.now().minusMinutes(linkExpirationTimeMinutes));
 
-        for (Reservation reservation : unconfirmedReservations) {
-            reservation.setStatus(ReservationStatus.ANNULLED);
-        }
+        unconfirmedReservations.forEach(r -> r.setStatus(ReservationStatus.ANNULLED));
     }
 
     @Override
