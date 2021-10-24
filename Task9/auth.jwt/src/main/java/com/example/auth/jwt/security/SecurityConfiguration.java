@@ -1,4 +1,4 @@
-package com.example.auth.jwt.config;
+package com.example.auth.jwt.security;
 
 import com.example.auth.jwt.service.UserService;
 import lombok.RequiredArgsConstructor;
