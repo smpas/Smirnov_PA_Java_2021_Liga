@@ -4,6 +4,7 @@ import com.example.auth.jwt.dto.ReservationDTO;
 import com.example.auth.jwt.dto.ShortReservationDTO;
 import com.example.auth.jwt.dto.UserDTO;
 import com.example.auth.jwt.dto.UserRegistrationDTO;
+import com.example.auth.jwt.exception.Response;
 import com.example.auth.jwt.service.ReservationService;
 import com.example.auth.jwt.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,10 @@ public class UserController {
     @GetMapping("/{id}/reservation")
     public List<ShortReservationDTO> getActiveReservations(@PathVariable Long id) {
         return reservationService.getActiveReservations(id);
+    }
+
+    @GetMapping("/reservation/{id}/confirming")
+    public Response confirmReservationOnLink(@PathVariable Long id) {
+        return reservationService.confirmReservationOnLink(id);
     }
 }

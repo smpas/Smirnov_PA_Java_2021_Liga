@@ -27,6 +27,9 @@ public class Reservation {
     @Column(columnDefinition = "TIMESTAMP", name = "time")
     private LocalDateTime time;
 
+    @Column(columnDefinition = "TIMESTAMP", name = "creation_time")
+    private LocalDateTime creationTime;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private ReservationStatus status;

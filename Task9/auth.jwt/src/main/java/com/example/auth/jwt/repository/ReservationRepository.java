@@ -20,4 +20,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Reservation findFirstByStatusAndTimeAfter(ReservationStatus status, LocalDateTime time);
 
     List<Reservation> findAllByStatusAndTimeBefore(ReservationStatus status, LocalDateTime time);
+
+    List<Reservation> findAllByStatusAndCreationTimeBefore(ReservationStatus status, LocalDateTime time);
 }

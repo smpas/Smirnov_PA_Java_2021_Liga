@@ -7,10 +7,10 @@ import com.example.auth.jwt.entity.ReservationStatus;
 import com.example.auth.jwt.entity.User;
 import com.example.auth.jwt.exception.EntityNotFoundException;
 import com.example.auth.jwt.exception.ReservationNotAvailableException;
+import com.example.auth.jwt.exception.Response;
 import com.example.auth.jwt.repository.ReservationRepository;
 import com.example.auth.jwt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,43 +30,43 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
 
-    private final LocalTime opening = LocalTime.parse("00:00");
-    private final LocalTime closing = LocalTime.parse("23:59");
-    private final Integer interval = 20;
+    private static final LocalTime OPENING_HOURS = LocalTime.parse("03:00");
+    private static final LocalTime CLOSING_HOURS = LocalTime.parse("23:00");
+    private static final Integer INTERVAL = 20;
 
     @Override
     public List<LocalTime> getSchedule(String date) {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        LocalDate localDate = LocalDate.parse(date, format);
+        LocalDate scheduledDate = LocalDate.parse(date, format);
         List<LocalTime> schedule = new ArrayList<>();
 
-        if (localDate.isBefore(LocalDate.now())) {
+        if (scheduledDate.isBefore(LocalDate.now())) {
             return schedule;
         }
 
-        LocalDateTime start = localDate.atTime(opening);
-        LocalDateTime end = localDate.atTime(closing);
+        LocalDateTime start = scheduledDate.atTime(OPENING_HOURS);
+        LocalDateTime end = scheduledDate.atTime(CLOSING_HOURS);
         List<Reservation> reservations = reservationRepository.findAllByTimeBetween(start, end);
 
-        List<LocalTime> times = reservations.stream().map(
+        List<LocalTime> reservedTimeSlots = reservations.stream().map(
                 reservation -> reservation.getTime().toLocalTime()).collect(Collectors.toList());
 
-        LocalTime temp = opening;
-        if (localDate.equals(LocalDate.now())) {
+        LocalTime iterationTime = OPENING_HOURS;
+        if (scheduledDate.equals(LocalDate.now())) {
             LocalTime now = LocalTime.now();
-            while (temp.isBefore(closing)) {
-                if (temp.isAfter(now) && !times.contains(temp)) {
-                    schedule.add(temp);
+            while (iterationTime.isBefore(CLOSING_HOURS)) {
+                if (iterationTime.isAfter(now) && !reservedTimeSlots.contains(iterationTime)) {
+                    schedule.add(iterationTime);
                 }
-                temp = temp.plusMinutes(interval);
+                iterationTime = iterationTime.plusMinutes(INTERVAL);
             }
             return schedule;
         }
 
-        if (localDate.isAfter(LocalDate.now())) {
-            while (temp.isBefore(closing)) {
-                schedule.add(temp);
-                temp = temp.plusMinutes(interval);
+        if (scheduledDate.isAfter(LocalDate.now())) {
+            while (iterationTime.isBefore(CLOSING_HOURS)) {
+                schedule.add(iterationTime);
+                iterationTime = iterationTime.plusMinutes(INTERVAL);
             }
         }
         return schedule;
@@ -79,13 +79,22 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> new EntityNotFoundException(User.class.getName(), reservationDTO.getUser()));
 
         LocalDateTime time = reservationDTO.getTime();
-        if (reservationRepository.findByTime(time) != null || time.getMinute() % 20 != 0
-                || time.toLocalTime().isBefore(opening) || time.toLocalTime().isAfter(closing.minusMinutes(1))) {
+        Reservation existingReservation = reservationRepository.findByTime(time);
+        if (time.isBefore(LocalDateTime.now())
+                || (existingReservation != null
+                && (existingReservation.getStatus().equals(ReservationStatus.NEW) ||
+                existingReservation.getStatus().equals(ReservationStatus.UNCONFIRMED)))
+                || time.getMinute() % 20 != 0
+                || time.toLocalTime().isBefore(OPENING_HOURS)
+                || time.toLocalTime().isAfter(CLOSING_HOURS.minusMinutes(1))) {
             throw new ReservationNotAvailableException(reservationDTO.getTime());
         }
 
-        Reservation newReservation =
-                reservationRepository.save(new Reservation(null, user, reservationDTO.getTime(), ReservationStatus.NEW));
+        Reservation newReservation = reservationRepository.save
+                (new Reservation(null, user, reservationDTO.getTime(), LocalDateTime.now(), ReservationStatus.UNCONFIRMED));
+        System.out.println("Your confirmation link: http://localhost:8080/user/reservation/" + newReservation.getId() +
+                "/confirming" + "\nIt will be available only for 15 minutes!");
+
         return new ReservationDTO(newReservation.getId(), newReservation.getUser().getId(),
                 newReservation.getTime(), newReservation.getStatus());
     }
@@ -141,11 +150,45 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional
     public void checkTimeoutReservations() {
         List<Reservation> timeoutReservations =
-        reservationRepository.findAllByStatusAndTimeBefore(ReservationStatus.NEW, LocalDateTime.now().minusMinutes(20));
+                reservationRepository.findAllByStatusAndTimeBefore(ReservationStatus.NEW,
+                        LocalDateTime.now().minusMinutes(20));
 
         for (Reservation reservation : timeoutReservations) {
             reservation.setStatus(ReservationStatus.TIMEOUT);
             reservationRepository.save(reservation);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void checkUnconfirmedLinks() {
+        List<Reservation> unconfirmedReservations =
+                reservationRepository.findAllByStatusAndCreationTimeBefore(ReservationStatus.UNCONFIRMED,
+                        LocalDateTime.now().minusMinutes(2));
+
+        for (Reservation reservation : unconfirmedReservations) {
+            reservation.setStatus(ReservationStatus.ANNULLED);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Response confirmReservationOnLink(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new EntityNotFoundException(Reservation.class.getName(), reservationId));
+
+        ReservationStatus status = reservation.getStatus();
+        switch (status) {
+            case UNCONFIRMED:
+                reservation.setStatus(ReservationStatus.NEW);
+                reservationRepository.save(reservation);
+                return new Response("You successfully confirmed your reservation");
+            case ANNULLED:
+                return new Response("Your confirmation link expired");
+            case NEW:
+                return new Response("Your reservation has already benn confirmed");
+            default:
+                throw new RuntimeException("Bad status of reservation");
         }
     }
 
