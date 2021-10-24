@@ -164,7 +164,7 @@ public class ReservationServiceImpl implements ReservationService {
     public void checkUnconfirmedLinks() {
         List<Reservation> unconfirmedReservations =
                 reservationRepository.findAllByStatusAndCreationTimeBefore(ReservationStatus.UNCONFIRMED,
-                        LocalDateTime.now().minusMinutes(2));
+                        LocalDateTime.now().minusMinutes(15));
 
         for (Reservation reservation : unconfirmedReservations) {
             reservation.setStatus(ReservationStatus.ANNULLED);
