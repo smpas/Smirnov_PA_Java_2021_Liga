@@ -10,7 +10,7 @@ import java.util.List;
 public interface ReservationService {
     List<LocalTime> getSchedule(String date);
 
-    ReservationDTO makeReservation(ShortReservationDTO reservationDTO);
+    ReservationDTO makeReservation(Long userId, String time);
 
     List<ShortReservationDTO> getActiveReservations(Long userId);
 

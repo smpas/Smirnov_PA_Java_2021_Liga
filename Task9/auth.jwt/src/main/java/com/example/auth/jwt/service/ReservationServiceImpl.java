@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -75,11 +76,11 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public ReservationDTO makeReservation(ShortReservationDTO reservationDTO) {
-        User user = userRepository.findById(reservationDTO.getUser())
-                .orElseThrow(() -> new EntityNotFoundException(User.class.getName(), reservationDTO.getUser()));
+    public ReservationDTO makeReservation(Long userId, String time) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(User.class.getName(), userId));
 
-        LocalDateTime reservationTime = reservationDTO.getTime();
+        LocalDateTime reservationTime = LocalDateTime.parse(time);
         validateReservationTime(reservationTime);
         Reservation savedReservation = reservationRepository.save(new Reservation(null, user,
                 reservationTime, LocalDateTime.now(), ReservationStatus.UNCONFIRMED));
