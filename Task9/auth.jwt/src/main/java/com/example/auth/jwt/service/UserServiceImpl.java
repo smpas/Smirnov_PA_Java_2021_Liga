@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
         if (user == null) {
-            throw new UsernameNotFoundException("User not found in the database");
+            throw new UsernameNotFoundException("User " + username + " not found in the database");
         }
 
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
