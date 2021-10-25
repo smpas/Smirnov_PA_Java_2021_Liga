@@ -18,7 +18,7 @@ public interface ReservationService {
 
     ReservationDTO markReservationAsArrived(Long reservationId);
 
-    ReservationDTO markReservationAsDone(Long reservationId);
+    ReservationDTO markReservationAsCompleted(Long reservationId);
 
     ReservationDTO markReservationAsCancelled(Long reservationId);
 

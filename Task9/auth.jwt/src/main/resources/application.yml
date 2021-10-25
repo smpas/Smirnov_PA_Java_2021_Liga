@@ -15,8 +15,8 @@ spring:
         format_sql: true
 
 app:
-  opening: "00:00"
-  closing: "23:59"
+  opening: "10:00"
+  closing: "20:00"
   intervalMinutes: 20
   linkExpirationTimeMinutes: 15
   host: "localhost"

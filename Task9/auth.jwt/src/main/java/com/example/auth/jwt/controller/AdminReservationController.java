@@ -21,9 +21,9 @@ public class AdminReservationController {
         return reservationService.markReservationAsArrived(id);
     }
 
-    @PutMapping("/reservation/{id}/done")
-    public ReservationDTO markReservationAsDone(@PathVariable Long id) {
-        return reservationService.markReservationAsDone(id);
+    @PutMapping("/reservation/{id}/completed")
+    public ReservationDTO markReservationAsCompleted(@PathVariable Long id) {
+        return reservationService.markReservationAsCompleted(id);
     }
 
     @PutMapping("/reservation/{id}/cancelled")

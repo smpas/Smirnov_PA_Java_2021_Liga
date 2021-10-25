@@ -128,7 +128,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public ReservationDTO markReservationAsDone(Long reservationId) {
+    public ReservationDTO markReservationAsCompleted(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new EntityNotFoundException(Reservation.class.getName(), reservationId));
 
